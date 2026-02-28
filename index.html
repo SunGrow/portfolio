@@ -176,9 +176,33 @@
       background: #0D47A1;
       border-radius: 3px;
     }
+
+    /* Custom cursor */
+    @media (pointer: fine) {
+      body, a, button, [role="button"], .cursor-pointer { cursor: none !important; }
+    }
+    #cursor { display: none; }
+    @media (pointer: fine) { #cursor { display: block; } }
+    #cursor-dot {
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    #cursor-dot.cursor-hover {
+      transform: translate(-50%, -50%) scale(2);
+      opacity: 0.5;
+    }
   </style>
 </head>
 <body class="bg-[#FAFAFA] font-['Inter'] text-gray-800">
+
+  <div id="cursor" class="fixed pointer-events-none z-[9999]">
+    <div id="cursor-dot" class="w-5 h-5 -translate-x-1/2 -translate-y-1/2">
+      <!-- Crosshair: thin + shape using SVG -->
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="10" y1="0" x2="10" y2="20" stroke="#0D47A1" stroke-width="1"/>
+        <line x1="0" y1="10" x2="20" y2="10" stroke="#0D47A1" stroke-width="1"/>
+      </svg>
+    </div>
+  </div>
 
   <nav id="navbar" class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -765,6 +789,41 @@
 
     // --- Footer Copyright ---
     document.getElementById('copyright').textContent = '\u00A9 ' + new Date().getFullYear() + ' Your Name. All rights reserved.';
+
+    // --- Custom Cursor — only on devices with fine pointer (mouse) ---
+    (function() {
+      if (!window.matchMedia('(pointer: fine)').matches) return;
+
+      const cursor = document.getElementById('cursor');
+      const cursorDot = document.getElementById('cursor-dot');
+      let mouseX = 0, mouseY = 0;
+
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursor.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
+      });
+
+      // Hover state for interactive elements
+      document.addEventListener('mouseover', (e) => {
+        if (e.target.closest('a, button, [role="button"], .cursor-pointer')) {
+          cursorDot.classList.add('cursor-hover');
+        }
+      });
+      document.addEventListener('mouseout', (e) => {
+        if (e.target.closest('a, button, [role="button"], .cursor-pointer')) {
+          cursorDot.classList.remove('cursor-hover');
+        }
+      });
+
+      // Hide when mouse leaves viewport
+      document.documentElement.addEventListener('mouseleave', () => {
+        cursor.style.opacity = '0';
+      });
+      document.documentElement.addEventListener('mouseenter', () => {
+        cursor.style.opacity = '1';
+      });
+    })();
   </script>
 
 </body>
