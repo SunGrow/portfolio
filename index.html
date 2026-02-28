@@ -63,6 +63,18 @@
       scrollbar-width: thin;
       scrollbar-color: #0D47A1 #f1f1f1;
     }
+
+    /* Scroll-triggered animation base state */
+    [data-animate] {
+      opacity: 0;
+      transform: translateY(2rem);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    [data-animate].animated {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body class="bg-[#FAFAFA] font-['Inter'] text-gray-800">
@@ -127,7 +139,23 @@
     </div>
   </section>
 
-  <section id="about"></section>
+  <!-- Diagonal section divider: hero → about -->
+  <div class="w-full overflow-hidden leading-none">
+    <svg class="w-full h-16 md:h-24" viewBox="0 0 1200 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="0,0 1200,100 0,100" fill="#0D47A1" fill-opacity="0.04" />
+    </svg>
+  </div>
+
+  <section id="about">
+    <div class="max-w-4xl mx-auto px-6 py-24">
+      <h2 data-animate class="font-heading text-3xl md:text-4xl font-bold border-l-4 border-accent pl-4 mb-8">
+        About
+      </h2>
+      <p data-animate data-delay="200" class="font-body text-lg leading-relaxed text-gray-700">
+        Passionate Unreal Engine developer specializing in C++ gameplay systems, multiplayer architecture, and performance optimization. Currently building immersive game experiences with cutting-edge technology.
+      </p>
+    </div>
+  </section>
 
   <section id="projects"></section>
 
@@ -317,6 +345,30 @@
         resizeCanvas();
         initParticles();
       });
+    })();
+
+    // --- Scroll-triggered Fade-in Animation ---
+    (function () {
+      const animElements = document.querySelectorAll('[data-animate]');
+
+      const animObserver = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+
+            // Support data-delay attribute for staggered animations
+            const delay = el.getAttribute('data-delay');
+            if (delay) {
+              el.style.transitionDelay = delay + 'ms';
+            }
+
+            el.classList.add('animated');
+            obs.unobserve(el);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      animElements.forEach(el => animObserver.observe(el));
     })();
   </script>
 
