@@ -1,0 +1,9 @@
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.claude/
+.claude-cli-*
+ReviewedTDDs/
+docs/plans/
+SKILL.md
