@@ -1,15 +1,19 @@
 {
+  "version": 2,
   "installCommand": "",
   "buildCommand": "",
   "outputDirectory": ".",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/stickfight",
-      "destination": "https://uberstickfight.vercel.app/stickfight"
+      "src": "/stickfight",
+      "dest": "https://uberstickfight.vercel.app/stickfight"
     },
     {
-      "source": "/stickfight/:path*",
-      "destination": "https://uberstickfight.vercel.app/stickfight/:path*"
+      "src": "/stickfight/(.*)",
+      "dest": "https://uberstickfight.vercel.app/stickfight/$1"
+    },
+    {
+      "handle": "filesystem"
     }
   ]
 }
