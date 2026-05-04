@@ -8,8 +8,8 @@
       "destination": "https://uberstickfight.vercel.app/stickfight"
     },
     {
-      "source": "/stickfight/(.*)",
-      "destination": "https://uberstickfight.vercel.app/stickfight/$1"
+      "source": "/stickfight/:path*",
+      "destination": "https://uberstickfight.vercel.app/stickfight/:path*"
     }
   ]
 }
