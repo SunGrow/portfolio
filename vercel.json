@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/stickfight",
+      "destination": "https://uberstickfight.vercel.app/stickfight"
+    },
+    {
+      "source": "/stickfight/(.*)",
+      "destination": "https://uberstickfight.vercel.app/stickfight/$1"
+    }
+  ]
+}
