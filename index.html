@@ -1,688 +1,545 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lev Poliakov | Unreal Engine Developer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>~*~ LEV POLIAKOV // ENGINE CORE ~*~</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        neon: {
-                            pink: '#ff00ff',
-                            cyan: '#00ffff',
-                            green: '#39ff14',
-                            purple: '#bf00ff',
-                        },
-                        dark: {
-                            bg: '#0a0a0f',
-                            card: '#12121a',
-                            surface: '#1a1a25',
-                            border: '#2a2a3a',
-                        }
-                    },
-                    fontFamily: {
-                        mono: ['JetBrains Mono', 'monospace'],
-                        sans: ['Space Grotesk', 'sans-serif'],
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'glow': 'glow 2s ease-in-out infinite alternate',
-                        'slide-up': 'slideUp 0.6s ease-out forwards',
-                        'fade-in': 'fadeIn 0.8s ease-out forwards',
-                    },
-                    keyframes: {
-                        glow: {
-                            '0%': { boxShadow: '0 0 5px rgba(0, 255, 255, 0.5), 0 0 10px rgba(0, 255, 255, 0.3)' },
-                            '100%': { boxShadow: '0 0 20px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.5)' }
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(30px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' }
-                        },
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' }
-                        }
-                    }
-                }
-            }
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hot-pink: #FF00FF;
+            --cyan: #00FFFF;
+            --lime: #39FF14;
+            --chrome-light: #e8e8e8;
+            --chrome-mid: #c0c0c0;
+            --chrome-dark: #808080;
+            --chrome-bg: linear-gradient(180deg, #e8e8e8 0%, #c8c8c8 40%, #a0a0a0 60%, #d0d0d0 100%);
+            --font-display: 'Archivo Black', sans-serif;
+            --font-thick: 'Anton', sans-serif;
+            --font-future: 'Orbitron', sans-serif;
+            --font-body: Verdana, Tahoma, sans-serif;
         }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .text-glow {
-                text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Background covers EVERYTHING via html */
+        html {
+            background: #0A0A0F;
+            /* Subtle grid pattern — authentic Y2K dark with faint grid */
+            background-image:
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            min-height: 100%;
+        }
+
+        body {
+            color: #fff;
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* CRT Scan Lines Overlay — decorative layer, not structural */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.08) 2px,
+                rgba(0, 0, 0, 0.08) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Watermark title */
+        .master-title {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: var(--font-display);
+            font-size: clamp(5rem, 18vw, 20rem);
+            white-space: nowrap;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255, 0, 255, 0.12);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ─── WINDOW GRID ─── */
+        .windows-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 30px 24px 80px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Window base */
+        .window {
+            background: #000;
+            border: 3px solid var(--chrome-mid);
+            box-shadow:
+                inset 1px 1px 0px rgba(255, 255, 255, 0.4),
+                inset -1px -1px 0px rgba(0, 0, 0, 0.8),
+                8px 8px 0px rgba(255, 0, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Span full row for big projects */
+        .window.wide {
+            grid-column: span 2;
+        }
+
+        .win-titlebar {
+            background: var(--chrome-bg);
+            padding: 6px 10px;
+            color: #000;
+            font-family: var(--font-future);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #555;
+            flex-shrink: 0;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .win-titlebar:active { cursor: grabbing; }
+
+        .win-btns {
+            display: flex;
+            gap: 4px;
+        }
+
+        .win-btn {
+            background: var(--hot-pink);
+            border: 1px outset #fff;
+            width: 14px;
+            height: 14px;
+        }
+        .win-btn.btn-cyan { background: var(--cyan); }
+        .win-btn.btn-lime { background: var(--lime); }
+
+        /* Window content — NO max-height, NO scroll */
+        .win-content {
+            padding: 20px;
+            color: #D0D0D0;
+        }
+
+        /* 3D Text */
+        .text-3d {
+            font-family: var(--font-thick);
+            font-size: 2.4rem;
+            color: var(--lime);
+            text-shadow: 2px 2px 0 #000, 3px 3px 0 var(--hot-pink);
+            line-height: 1;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .highlight-box {
+            background: var(--cyan);
+            color: #000;
+            font-weight: bold;
+            font-family: var(--font-future);
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            padding: 6px 10px;
+            display: inline-block;
+            margin: 4px 0 12px 0;
+            border: 2px solid #000;
+        }
+
+        /* Videos */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            margin: 16px 0;
+            border: 3px solid var(--lime);
+            box-shadow: 4px 4px 0 var(--hot-pink);
+            background: #111;
+        }
+        .video-container iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Bullet list Y2K style */
+        .y2k-list {
+            list-style: none;
+            margin-top: 14px;
+        }
+        .y2k-list li {
+            padding: 8px 0 8px 20px;
+            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .y2k-list li::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: var(--lime);
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        /* Neon stat highlight */
+        .neon-stat {
+            color: var(--cyan);
+            font-weight: bold;
+        }
+        .neon-stat.pink { color: var(--hot-pink); }
+        .neon-stat.lime { color: var(--lime); }
+
+        .stat-pill {
+            display: inline-block;
+            background: var(--hot-pink);
+            color: #fff;
+            padding: 2px 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Terminal block */
+        .terminal-block {
+            background: rgba(0, 255, 255, 0.04);
+            border-left: 3px solid var(--cyan);
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.9;
+            color: var(--cyan);
+        }
+        .terminal-block strong {
+            color: #fff;
+        }
+
+        /* Status box */
+        .status-box {
+            background: rgba(0, 255, 255, 0.06);
+            border: 1px solid var(--cyan);
+            padding: 12px;
+            margin-top: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        /* Link buttons */
+        .links-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .link-button {
+            flex: 1;
+            display: block;
+            text-align: center;
+            background: var(--lime);
+            color: #000;
+            font-family: var(--font-future);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-decoration: none;
+            border: 3px outset #fff;
+            padding: 10px 8px;
+            text-transform: uppercase;
+            transition: background 0.15s, border-style 0.15s;
+        }
+        .link-button:hover {
+            background: var(--cyan);
+            border-style: inset;
+        }
+
+        /* Marquee ticker */
+        .fast-marquee {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--hot-pink);
+            color: #fff;
+            font-family: var(--font-thick);
+            font-size: 1.6rem;
+            padding: 4px 0;
+            border-top: 3px solid #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            z-index: 1000;
+        }
+        .ticker {
+            display: inline-block;
+            animation: marquee-scroll 12s linear infinite;
+        }
+        .ticker span {
+            padding: 0 40px;
+        }
+        @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Sub-project split inside a window */
+        .sub-project {
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .sub-project:last-child { margin-bottom: 0; }
+        .sub-project.border-lime { border-left: 4px solid var(--lime); background: rgba(57, 255, 20, 0.03); }
+        .sub-project.border-pink { border-left: 4px solid var(--hot-pink); background: rgba(255, 0, 255, 0.03); }
+
+        .sub-title {
+            font-family: var(--font-thick);
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            .windows-container {
+                grid-template-columns: 1fr;
+                padding: 16px 12px 80px;
+                gap: 16px;
             }
-            .card-glow {
-                box-shadow: 0 0 15px rgba(0, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            .window.wide {
+                grid-column: span 1;
             }
-            .card-glow-pink {
-                box-shadow: 0 0 15px rgba(255, 0, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            .text-3d {
+                font-size: 1.8rem;
             }
-            .card-glow-green {
-                box-shadow: 0 0 15px rgba(57, 255, 20, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            .links-row {
+                flex-direction: column;
             }
-            .grid-bg {
-                background-image: 
-                    linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
-                background-size: 50px 50px;
+            .master-title {
+                font-size: clamp(2rem, 12vw, 5rem);
             }
-            .gradient-text {
-                background: linear-gradient(135deg, #00ffff, #ff00ff, #39ff14);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
-            .hover-lift {
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-            }
-            .hover-lift:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2);
-            }
-            .neon-border {
-                position: relative;
-            }
-            .neon-border::before {
-                content: '';
-                position: absolute;
-                inset: -1px;
-                background: linear-gradient(135deg, #00ffff, #ff00ff, #39ff14);
-                border-radius: inherit;
-                z-index: -1;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-            }
-            .neon-border:hover::before {
-                opacity: 1;
-            }
-            .scroll-indicator {
-                animation: bounce 2s infinite;
-            }
-            @keyframes bounce {
-                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-                40% { transform: translateY(-10px); }
-                60% { transform: translateY(-5px); }
-            }
-            .skill-tag {
-                background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
-                border: 1px solid rgba(0, 255, 255, 0.3);
-                transition: all 0.3s ease;
-            }
-            .skill-tag:hover {
-                background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.2));
-                border-color: rgba(0, 255, 255, 0.6);
-                transform: scale(1.05);
-            }
-            .video-container {
-                position: relative;
-                padding-bottom: 56.25%;
-                height: 0;
-                overflow: hidden;
-                border-radius: 0.5rem;
-                border: 2px solid rgba(0, 255, 255, 0.3);
-            }
-            .video-container iframe {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                border: none;
-            }
-            .stat-bar {
-                height: 4px;
-                background: linear-gradient(90deg, #00ffff, #ff00ff);
-                border-radius: 2px;
-                transition: width 1s ease-out;
-            }
-            .nav-link {
-                position: relative;
-                transition: color 0.3s ease;
-            }
-            .nav-link::after {
-                content: '';
-                position: absolute;
-                bottom: -2px;
-                left: 0;
-                width: 0;
-                height: 2px;
-                background: linear-gradient(90deg, #00ffff, #ff00ff);
-                transition: width 0.3s ease;
-            }
-            .nav-link:hover::after {
-                width: 100%;
+            .fast-marquee {
+                font-size: 1.1rem;
             }
         }
     </style>
 </head>
-<body class="bg-dark-bg text-gray-300 font-sans min-h-screen grid-bg">
 
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-dark-bg/90 backdrop-blur-md border-b border-dark-border">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="text-xl font-bold font-mono">
-                <span class="text-neon-cyan">&lt;</span>
-                <span class="text-white">LEV</span>
-                <span class="text-neon-pink">/&gt;</span>
-            </div>
-            <div class="hidden md:flex space-x-8">
-                <a href="#about" class="nav-link text-gray-400 hover:text-neon-cyan">About</a>
-                <a href="#skills" class="nav-link text-gray-400 hover:text-neon-cyan">Skills</a>
-                <a href="#projects" class="nav-link text-gray-400 hover:text-neon-cyan">Projects</a>
-                <a href="#contact" class="nav-link text-gray-400 hover:text-neon-cyan">Contact</a>
-                <a rel="me" href="https://mastodon.social/@sungrow" class="nav-link text-gray-400 hover:text-neon-cyan">Mastodon</a>
-            </div>
-            <button class="md:hidden text-neon-cyan" id="menu-toggle">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
-            </button>
-        </div>
-        <!-- Mobile Menu -->
-        <div class="md:hidden hidden bg-dark-surface border-t border-dark-border" id="mobile-menu">
-            <div class="px-6 py-4 space-y-3">
-                <a href="#about" class="block text-gray-400 hover:text-neon-cyan">About</a>
-                <a href="#skills" class="block text-gray-400 hover:text-neon-cyan">Skills</a>
-                <a href="#projects" class="block text-gray-400 hover:text-neon-cyan">Projects</a>
-                <a href="#contact" class="block text-gray-400 hover:text-neon-cyan">Contact</a>
-                <a rel="me" href="https://mastodon.social/@sungrow" class="block text-gray-400 hover:text-neon-cyan">Mastodon</a>
-            </div>
-        </div>
-    </nav>
+<body>
 
-    <!-- Hero Section -->
-    <section class="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
-        <div class="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-pink/5"></div>
-        <div class="max-w-5xl mx-auto px-6 text-center relative z-10">
-            <div class="mb-6 inline-block">
-                <span class="text-neon-green font-mono text-sm tracking-[0.3em] uppercase animate-pulse-slow">Available for Hire</span>
+    <a rel="me" href="https://mastodon.social/@sungrow" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Mastodon</a>
+
+    <h1 class="master-title">UE ENGINEER</h1>
+
+    <div class="fast-marquee">
+        <div class="ticker">
+            <span>LEV POLIAKOV</span><span>// C++ MULTITHREADING</span><span>// VULKAN</span><span>// 5 SHIPPED TITLES</span><span>// AVAILABLE NOW</span>
+            <span>LEV POLIAKOV</span><span>// C++ MULTITHREADING</span><span>// VULKAN</span><span>// 5 SHIPPED TITLES</span><span>// AVAILABLE NOW</span>
+        </div>
+    </div>
+
+    <div class="windows-container">
+
+        <!-- WINDOW 1: IDENTITY -->
+        <div class="window" id="win-about">
+            <div class="win-titlebar">
+                <span>SYS_INFO.EXE</span>
+                <div class="win-btns"><span class="win-btn"></span><span class="win-btn btn-cyan"></span><span class="win-btn btn-lime"></span></div>
             </div>
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
-                <span class="gradient-text">Lev Poliakov</span>
-            </h1>
-            <p class="text-xl md:text-2xl text-gray-400 mb-8 max-w-3xl mx-auto">
-                Unreal Engine C++ Developer specializing in <span class="text-neon-cyan">performance optimization</span>, 
-                <span class="text-neon-pink">multithreading</span>, and <span class="text-neon-green">custom rendering pipelines</span>
-            </p>
-            <div class="flex flex-wrap justify-center gap-4 mb-12">
-                <div class="bg-dark-card border border-dark-border rounded-lg px-6 py-3">
-                    <div class="text-2xl font-bold text-neon-cyan">5+</div>
-                    <div class="text-sm text-gray-500">Shipped Titles</div>
+            <div class="win-content">
+                <h2 class="text-3d">LEV POLIAKOV</h2>
+                <div class="highlight-box">UNREAL ENGINE C++ DEVELOPER</div>
+                <p>I build the systems that ship games. From multithreaded conveyor networks processing 50K resources to custom Vulkan pipelines doubling frame rates — I solve the hard engineering problems that make or break production titles.</p>
+                <div class="status-box">
+                    <p style="color: var(--cyan);">>>> STATUS: <strong style="color:#fff">AVAILABLE</strong></p>
+                    <p style="color: var(--hot-pink);">>>> SHIPPED: <strong style="color:#fff">5 TITLES</strong></p>
+                    <p style="color: var(--lime);">>>> LEAD EXP: <strong style="color:#fff">4+ YEARS</strong></p>
                 </div>
-                <div class="bg-dark-card border border-dark-border rounded-lg px-6 py-3">
-                    <div class="text-2xl font-bold text-neon-pink">4+</div>
-                    <div class="text-sm text-gray-500">Years Lead Exp</div>
-                </div>
-                <div class="bg-dark-card border border-dark-border rounded-lg px-6 py-3">
-                    <div class="text-2xl font-bold text-neon-green">15×</div>
-                    <div class="text-sm text-gray-500">Performance Boost</div>
+                <div class="links-row">
+                    <a href="mailto:progsag@gmail.com" class="link-button">EMAIL</a>
+                    <a href="https://github.com/sungrow" target="_blank" class="link-button" style="background:var(--cyan);">GITHUB</a>
+                    <a href="https://linkedin.com/in/sungrow" target="_blank" class="link-button" style="background:var(--hot-pink); color:#fff;">LINKEDIN</a>
                 </div>
             </div>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="#projects" class="bg-neon-cyan text-black font-bold px-8 py-3 rounded-lg hover:bg-neon-green transition-colors duration-300">
-                    View Projects
-                </a>
-                <a href="#contact" class="border-2 border-neon-pink text-neon-pink px-8 py-3 rounded-lg hover:bg-neon-pink hover:text-white transition-colors duration-300">
-                    Get in Touch
-                </a>
+        </div>
+
+        <!-- WINDOW 2: TECH STACK -->
+        <div class="window" id="win-skills">
+            <div class="win-titlebar">
+                <span>TECH_STACK.DLL</span>
+                <div class="win-btns"><span class="win-btn btn-lime"></span></div>
+            </div>
+            <div class="win-content" style="background: #001100; border: 2px solid rgba(57,255,20,0.3);">
+                <div style="font-family: 'Courier New', monospace; font-size: 1.05rem; line-height: 2.2; color: var(--lime);">
+                    > UE4 // UE5<br>
+                    > C++14 // C++20<br>
+                    > HLSL SHADERS<br>
+                    > VULKAN GRAPHICS<br>
+                    > MULTITHREADING<br>
+                    > GAMEPLAY ABILITY SYS<br>
+                    > NETWORK REPLICATION<br>
+                    > MEMORY PROFILING<br>
+                    > QT6 UI SYSTEMS<br>
+                    > SAVE/LOAD ARCHITECTURE
+                </div>
             </div>
         </div>
-        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 scroll-indicator">
-            <svg class="w-6 h-6 text-neon-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-            </svg>
-        </div>
-    </section>
 
-    <!-- About Section -->
-    <section id="about" class="py-24 relative">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
+        <!-- WINDOW 3: THE CRUST — full width -->
+        <div class="window wide" id="win-crust">
+            <div class="win-titlebar">
+                <span>PROJ_01.MPG: THE CRUST</span>
+                <div class="win-btns"><span class="win-btn btn-lime"></span><span class="win-btn"></span></div>
+            </div>
+            <div class="win-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                 <div>
-                    <h2 class="text-4xl font-bold mb-6">
-                        <span class="text-neon-cyan">About</span> Me
-                    </h2>
-                    <p class="text-gray-400 mb-6 leading-relaxed">
-                        I build the systems that ship games. From multithreaded conveyor networks processing 50K resources 
-                        to custom Vulkan pipelines doubling frame rates — I solve the hard engineering problems that make 
-                        or break production titles.
-                    </p>
-                    <p class="text-gray-400 mb-8 leading-relaxed">
-                        With over 4 years of lead engineering experience and 5 shipped titles, I specialize in pushing 
-                        Unreal Engine to its limits and beyond.
-                    </p>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-dark-card border border-dark-border rounded-lg p-4">
-                            <div class="text-neon-cyan font-mono text-sm mb-1">STATUS</div>
-                            <div class="text-white font-bold">Available</div>
-                        </div>
-                        <div class="bg-dark-card border border-dark-border rounded-lg p-4">
-                            <div class="text-neon-pink font-mono text-sm mb-1">SHIPPED</div>
-                            <div class="text-white font-bold">5 Titles</div>
-                        </div>
-                        <div class="bg-dark-card border border-dark-border rounded-lg p-4">
-                            <div class="text-neon-green font-mono text-sm mb-1">LEAD EXP</div>
-                            <div class="text-white font-bold">4+ Years</div>
-                        </div>
-                        <div class="bg-dark-card border border-dark-border rounded-lg p-4">
-                            <div class="text-neon-purple font-mono text-sm mb-1">SPECIALTY</div>
-                            <div class="text-white font-bold">Performance</div>
-                        </div>
+                    <h2 class="text-3d" style="color: var(--cyan);">THE CRUST</h2>
+                    <div class="highlight-box" style="background: var(--hot-pink); color: #fff;">VEOM STUDIO // LEAD CONVEYOR ENGINEER // JAN '20 – MAR '24</div>
+                    <p style="margin-top: 10px;">4 years as lead engineer on a Factorio-scale lunar base builder. I engineered a multithreaded conveyor system processing <span class="neon-stat">50,000+ resources in under 2ms</span>, enabling massive factory builds without lag.</p>
+                    <ul class="y2k-list">
+                        <li>Performance: <span class="neon-stat pink">4 FPS → 60 FPS</span> — a <span class="stat-pill">15× improvement</span> via multithreading + custom HLSL shaders</li>
+                        <li>Custom save system cutting load times by <span class="neon-stat">90%</span></li>
+                        <li>Custom Vulkan pipeline — <span class="neon-stat lime">2× frame rate</span> over default renderer</li>
+                        <li>Animation system <span class="neon-stat lime">10× faster</span> than UE4 default</li>
+                        <li>Dynamic market system + <span class="neon-stat">2.5M resource nodes</span> concurrently managed</li>
+                    </ul>
+                    <div style="margin-top: 16px;">
+                        <a href="https://store.steampowered.com/app/1465470/The_Crust/" target="_blank" class="link-button" style="display: inline-block; width: auto; padding: 8px 24px;">VIEW ON STEAM →</a>
                     </div>
                 </div>
-                <div class="relative">
-                    <div class="bg-dark-card border border-dark-border rounded-xl p-6 card-glow">
-                        <div class="font-mono text-sm space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-500">Performance Optimization</span>
-                                <span class="text-neon-cyan">95%</span>
-                            </div>
-                            <div class="w-full bg-dark-surface rounded-full h-1">
-                                <div class="stat-bar" style="width: 95%"></div>
-                            </div>
-                            
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-500">Multithreading</span>
-                                <span class="text-neon-pink">90%</span>
-                            </div>
-                            <div class="w-full bg-dark-surface rounded-full h-1">
-                                <div class="stat-bar" style="width: 90%; background: linear-gradient(90deg, #ff00ff, #bf00ff)"></div>
-                            </div>
-                            
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-500">Custom Rendering</span>
-                                <span class="text-neon-green">85%</span>
-                            </div>
-                            <div class="w-full bg-dark-surface rounded-full h-1">
-                                <div class="stat-bar" style="width: 85%; background: linear-gradient(90deg, #39ff14, #00ffff)"></div>
-                            </div>
-                            
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-500">Network Replication</span>
-                                <span class="text-neon-purple">80%</span>
-                            </div>
-                            <div class="w-full bg-dark-surface rounded-full h-1">
-                                <div class="stat-bar" style="width: 80%; background: linear-gradient(90deg, #bf00ff, #ff00ff)"></div>
-                            </div>
-                        </div>
+                <div>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube-nocookie.com/embed/-7-pgPDQ89s?rel=0" title="The Crust Trailer"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen loading="lazy"></iframe>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Skills Section -->
-    <section id="skills" class="py-24 bg-dark-surface/50">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">
-                    <span class="text-neon-green">Tech</span> Stack
-                </h2>
-                <p class="text-gray-400 max-w-2xl mx-auto">
-                    Core technologies and expertise honed across multiple shipped titles
-                </p>
+        <!-- WINDOW 4: ZOOCHOSIS — full width -->
+        <div class="window wide" id="win-zoochosis">
+            <div class="win-titlebar">
+                <span>PROJ_02.MPG: ZOOCHOSIS</span>
+                <div class="win-btns"><span class="win-btn btn-cyan"></span></div>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <div class="skill-tag rounded-lg p-4 text-center">
-                    <div class="text-neon-cyan font-bold mb-1">UE4 / UE5</div>
-                    <div class="text-xs text-gray-500">Game Engine</div>
-                </div>
-                <div class="skill-tag rounded-lg p-4 text-center">
-                    <div class="text-neon-pink font-bold mb-1">C++14 / C++20</div>
-                    <div class="text-xs text-gray-500">Programming</div>
-                </div>
-                <div class="skill-tag rounded-lg p-4 text-center">
-                    <div class="text-neon-green font-bold mb-1">HLSL Shaders</div>
-                    <div class="text-xs text-gray-500">Graphics</div>
-                </div>
-                <div class="skill-tag rounded-lg p-4 text-center">
-                    <div class="text-neon-purple font-bold mb-1">Vulkan</div>
-                    <div class="text-xs text-gray-500">Graphics API</div>
-                </div>
-                <div class="skill-tag rounded-lg p-4 text-center">
-                    <div class="text-neon-cyan font-bold mb-1">Multithreading</div>
-                    <div class="text-xs text-gray-500">Performance</div>
-                </div>
-                <div class="skill-tag rounded-lg p-4 text-center">
-                    <div class="text-neon-pink font-bold mb-1">GAS</div>
-                    <div class="text-xs text-gray-500">Gameplay Ability</div>
-                </div>
-                <div class="skill-tag rounded-lg p-4 text-center">
-                    <div class="text-neon-green font-bold mb-1">Networking</div>
-                    <div class="text-xs text-gray-500">Replication</div>
-                </div>
-                <div class="skill-tag rounded-lg p-4 text-center">
-                    <div class="text-neon-purple font-bold mb-1">QT6</div>
-                    <div class="text-xs text-gray-500">UI Systems</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section id="projects" class="py-24">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">
-                    <span class="text-neon-pink">Featured</span> Projects
-                </h2>
-                <p class="text-gray-400 max-w-2xl mx-auto">
-                    Shipped titles and key contributions across my career
-                </p>
-            </div>
-
-            <!-- Project 1: The Crust -->
-            <div class="mb-20">
-                <div class="bg-dark-card border border-dark-border rounded-xl overflow-hidden hover-lift">
-                    <div class="grid md:grid-cols-2 gap-0">
-                        <div class="p-8">
-                            <div class="flex items-center gap-3 mb-4">
-                                <span class="bg-neon-cyan text-black text-xs font-bold px-3 py-1 rounded-full">LEAD ENGINEER</span>
-                                <span class="text-gray-500 text-sm">Jan '20 – Mar '24</span>
-                            </div>
-                            <h3 class="text-3xl font-bold text-white mb-3">The Crust</h3>
-                            <p class="text-neon-cyan font-mono text-sm mb-4">VEOM STUDIO</p>
-                            <p class="text-gray-400 mb-6 leading-relaxed">
-                                4 years as lead engineer on a Factorio-scale lunar base builder. Engineered a multithreaded 
-                                conveyor system processing 50,000+ resources in under 2ms.
-                            </p>
-                            <div class="space-y-3 mb-6">
-                                <div class="flex items-start gap-3">
-                                    <span class="text-neon-green mt-1">▸</span>
-                                    <span class="text-gray-300">Performance: <span class="text-neon-pink font-bold">4 FPS → 60 FPS</span> (15× improvement)</span>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <span class="text-neon-green mt-1">▸</span>
-                                    <span class="text-gray-300">Custom save system cutting load times by <span class="text-neon-cyan font-bold">90%</span></span>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <span class="text-neon-green mt-1">▸</span>
-                                    <span class="text-gray-300">Custom Vulkan pipeline — <span class="text-neon-green font-bold">2× frame rate</span></span>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <span class="text-neon-green mt-1">▸</span>
-                                    <span class="text-gray-300">Animation system <span class="text-neon-green font-bold">10× faster</span> than UE4 default</span>
-                                </div>
-                            </div>
-                            <a href="https://store.steampowered.com/app/1465470/The_Crust/" target="_blank" 
-                               class="inline-flex items-center gap-2 bg-neon-cyan text-black font-bold px-6 py-2 rounded-lg hover:bg-neon-green transition-colors">
-                                View on Steam
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                                </svg>
-                            </a>
-                        </div>
-                        <div class="bg-dark-surface p-8 flex items-center">
-                            <div class="video-container w-full">
-                                <iframe src="https://www.youtube-nocookie.com/embed/-7-pgPDQ89s?rel=0" 
-                                        title="The Crust Trailer"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen loading="lazy"></iframe>
-                            </div>
-                        </div>
+            <div class="win-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div>
+                    <h2 class="text-3d" style="color: var(--hot-pink);">ZOOCHOSIS</h2>
+                    <div class="highlight-box" style="background: var(--lime);">CLAPPERHEADS // CONTRACT // JAN '25 – FEB '25</div>
+                    <p style="margin-top: 10px;">Short-term contract to solve pain points in a bodycam horror simulation with strong community buzz.</p>
+                    <div class="terminal-block">
+                        > <strong>INVENTORY OVERHAUL:</strong> Fixed accessibility, broadened game appeal<br>
+                        > <strong>AI REWORK:</strong> Replaced repetitive behaviors with unpredictable encounters<br>
+                        > <strong>BUG FIXES:</strong> Squashed critical bugs driving negative reviews
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <a href="https://store.steampowered.com/app/2458560/Zoochosis/" target="_blank" class="link-button" style="display: inline-block; width: auto; padding: 8px 24px; background: var(--cyan);">VIEW ON STEAM →</a>
                     </div>
                 </div>
-            </div>
-
-            <!-- Project 2: Zoochosis -->
-            <div class="mb-20">
-                <div class="bg-dark-card border border-dark-border rounded-xl overflow-hidden hover-lift">
-                    <div class="grid md:grid-cols-2 gap-0">
-                        <div class="bg-dark-surface p-8 flex items-center order-2 md:order-1">
-                            <div class="video-container w-full" style="border-color: rgba(255, 0, 255, 0.3);">
-                                <iframe src="https://www.youtube-nocookie.com/embed/RejEUXIGPQ0?rel=0" 
-                                        title="Zoochosis Trailer"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen loading="lazy"></iframe>
-                            </div>
-                        </div>
-                        <div class="p-8 order-1 md:order-2">
-                            <div class="flex items-center gap-3 mb-4">
-                                <span class="bg-neon-pink text-white text-xs font-bold px-3 py-1 rounded-full">CONTRACT</span>
-                                <span class="text-gray-500 text-sm">Jan '25 – Feb '25</span>
-                            </div>
-                            <h3 class="text-3xl font-bold text-white mb-3">Zoochosis</h3>
-                            <p class="text-neon-pink font-mono text-sm mb-4">CLAPPERHEADS</p>
-                            <p class="text-gray-400 mb-6 leading-relaxed">
-                                Short-term contract to solve critical pain points in a bodycam horror simulation 
-                                with strong community buzz.
-                            </p>
-                            <div class="space-y-3 mb-6">
-                                <div class="flex items-start gap-3">
-                                    <span class="text-neon-cyan mt-1">▸</span>
-                                    <span class="text-gray-300"><span class="text-white font-bold">Inventory Overhaul:</span> Fixed accessibility, broadened game appeal</span>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <span class="text-neon-cyan mt-1">▸</span>
-                                    <span class="text-gray-300"><span class="text-white font-bold">AI Rework:</span> Replaced repetitive behaviors with unpredictable encounters</span>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <span class="text-neon-cyan mt-1">▸</span>
-                                    <span class="text-gray-300"><span class="text-white font-bold">Bug Fixes:</span> Squashed critical bugs driving negative reviews</span>
-                                </div>
-                            </div>
-                            <a href="https://store.steampowered.com/app/2458560/Zoochosis/" target="_blank" 
-                               class="inline-flex items-center gap-2 bg-neon-pink text-white font-bold px-6 py-2 rounded-lg hover:bg-neon-cyan hover:text-black transition-colors">
-                                View on Steam
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Projects Grid -->
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Project 3: Malice -->
-                <div class="bg-dark-card border border-dark-border rounded-xl overflow-hidden hover-lift">
-                    <div class="p-8">
-                        <img src="https://optim.tildacdn.one/tild6532-3233-4334-b262-316137653134/-/resize/575x/-/format/webp/_malice_illustration.png.webp" 
-                             alt="Malice" class="w-full h-40 object-cover rounded-lg mb-6 border border-neon-green/30">
-                        <div class="flex items-center gap-3 mb-4">
-                            <span class="bg-neon-green text-black text-xs font-bold px-3 py-1 rounded-full">GAME PROGRAMMER</span>
-                            <span class="text-gray-500 text-sm">Jul '23 – Apr '24</span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Malice</h3>
-                        <p class="text-neon-green font-mono text-sm mb-4">DECARTEL</p>
-                        <p class="text-gray-400 leading-relaxed">
-                            Cyberpunk action RPG. Reworked combat and camera systems for tighter gun-fu feel inspired 
-                            by Max Payne — directly improved player engagement metrics.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Project 4: Metaverse -->
-                <div class="bg-dark-card border border-dark-border rounded-xl overflow-hidden hover-lift">
-                    <div class="p-8">
-                        <img src="https://optim.tildacdn.one/tild3037-3065-4565-b331-616637373462/-/resize/575x/-/format/webp/0_5.png.webp" 
-                             alt="Metaverse" class="w-full h-40 object-cover rounded-lg mb-6 border border-neon-pink/30">
-                        <div class="flex items-center gap-3 mb-4">
-                            <span class="bg-neon-pink text-white text-xs font-bold px-3 py-1 rounded-full">GAME PROGRAMMER</span>
-                            <span class="text-gray-500 text-sm">DECARTEL</span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Metaverse</h3>
-                        <p class="text-neon-pink font-mono text-sm mb-4">DECARTEL</p>
-                        <p class="text-gray-400 leading-relaxed">
-                            MMO RPG. Built multiplayer on UE5 GAS for hundreds of concurrent players. Optimized 
-                            networking to <span class="text-neon-green font-bold">cut bandwidth by 40%</span>, resolving desync issues.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Project 5: 2040World -->
-                <div class="bg-dark-card border border-dark-border rounded-xl overflow-hidden hover-lift">
-                    <div class="p-8">
-                        <img src="https://2040world.io/assets/img/game-play/bg-gameplay.jpg" 
-                             alt="2040World" class="w-full h-40 object-cover rounded-lg mb-6 border border-neon-cyan/30">
-                        <div class="flex items-center gap-3 mb-4">
-                            <span class="bg-neon-cyan text-black text-xs font-bold px-3 py-1 rounded-full">SOFTWARE ENGINEER</span>
-                            <span class="text-gray-500 text-sm">Oct '24 – Feb '25</span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">2040World</h3>
-                        <p class="text-neon-cyan font-mono text-sm mb-4">2040WORLD</p>
-                        <p class="text-gray-400 leading-relaxed">
-                            Stabilized a struggling codebase — <span class="text-neon-cyan font-bold">cut bug count by 70%</span>. 
-                            Overhauled UI library (QT6). Re-architected backend/launcher/game integration.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Project 6: Sports Sim NDA -->
-                <div class="bg-dark-card border border-dark-border rounded-xl overflow-hidden hover-lift">
-                    <div class="p-8">
-                        <div class="bg-[repeating-linear-gradient(45deg,rgba(255,0,255,0.04),rgba(255,0,255,0.04)_10px,transparent_10px,transparent_20px)] 
-                                    border border-dashed border-neon-pink/50 rounded-lg p-6 mb-6 text-center">
-                            <span class="font-mono text-xs tracking-[0.3em] text-neon-pink">// NDA PROTECTED //</span>
-                        </div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <span class="bg-neon-pink text-white text-xs font-bold px-3 py-1 rounded-full">SOFTWARE ENGINEER</span>
-                            <span class="text-gray-500 text-sm">Mar '25 – Present</span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Sports Sim</h3>
-                        <p class="text-neon-pink font-mono text-sm mb-4">4PEOPLE</p>
-                        <p class="text-gray-400 leading-relaxed">
-                            Building core systems for a real-time sports title. Camera System with broadcast-quality 
-                            tracking, Rally Replay, Reaction Systems, Commentator System. 
-                            <span class="text-neon-cyan font-bold">80+ tasks across 25+ sprints.</span>
-                        </p>
+                <div>
+                    <div class="video-container" style="border-color: var(--hot-pink); box-shadow: 4px 4px 0 var(--cyan);">
+                        <iframe src="https://www.youtube-nocookie.com/embed/RejEUXIGPQ0?rel=0" title="Zoochosis Trailer"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen loading="lazy"></iframe>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-24 bg-dark-surface/50">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            <h2 class="text-4xl font-bold mb-6">
-                Let's <span class="text-neon-cyan">Build</span> Together
-            </h2>
-            <p class="text-gray-400 mb-12 max-w-2xl mx-auto">
-                Ready to tackle complex engineering challenges? Let's discuss how I can help optimize your game's performance.
-            </p>
-            <div class="grid md:grid-cols-3 gap-6">
-                <a href="mailto:progsag@gmail.com" 
-                   class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-neon-cyan transition-colors group">
-                    <div class="text-neon-cyan mb-4">
-                        <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-white font-bold mb-2 group-hover:text-neon-cyan transition-colors">Email</h3>
-                    <p class="text-gray-500 text-sm">progsag@gmail.com</p>
-                </a>
-                <a href="https://github.com/sungrow" target="_blank" 
-                   class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-neon-pink transition-colors group">
-                    <div class="text-neon-pink mb-4">
-                        <svg class="w-8 h-8 mx-auto" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-white font-bold mb-2 group-hover:text-neon-pink transition-colors">GitHub</h3>
-                    <p class="text-gray-500 text-sm">github.com/sungrow</p>
-                </a>
-                <a href="https://linkedin.com/in/sungrow" target="_blank" 
-                   class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-neon-green transition-colors group">
-                    <div class="text-neon-green mb-4">
-                        <svg class="w-8 h-8 mx-auto" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-white font-bold mb-2 group-hover:text-neon-green transition-colors">LinkedIn</h3>
-                    <p class="text-gray-500 text-sm">linkedin.com/in/sungrow</p>
-                </a>
+        <!-- WINDOW 5: DECARTEL -->
+        <div class="window" id="win-meta">
+            <div class="win-titlebar">
+                <span>PROJ_03.SYS: DECARTEL</span>
+                <div class="win-btns"><span class="win-btn"></span><span class="win-btn btn-lime"></span></div>
+            </div>
+            <div class="win-content">
+                <div class="sub-project border-lime">
+                    <img src="https://optim.tildacdn.one/tild6532-3233-4334-b262-316137653134/-/resize/575x/-/format/webp/_malice_illustration.png.webp" alt="Malice" style="width:100%; height:100px; object-fit:cover; border:2px solid var(--lime); margin-bottom:10px;">
+                    <h3 class="sub-title" style="color: var(--lime); text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(57,255,20,0.3);">MALICE</h3>
+                    <div class="highlight-box" style="font-size: 0.6rem;">GAME PROGRAMMER // DECARTEL // JUL '23 – APR '24</div>
+                    <p>Cyberpunk action RPG. Reworked the combat and camera systems for tighter gun-fu feel inspired by Max Payne — directly improved player engagement metrics.</p>
+                </div>
+                <div class="sub-project border-pink">
+                    <img src="https://optim.tildacdn.one/tild3037-3065-4565-b331-616637373462/-/resize/575x/-/format/webp/0_5.png.webp" alt="Metaverse" style="width:100%; height:100px; object-fit:cover; border:2px solid var(--hot-pink); margin-bottom:10px;">
+                    <h3 class="sub-title" style="color: var(--cyan); text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(255,0,255,0.3);">METAVERSE</h3>
+                    <div class="highlight-box" style="font-size: 0.6rem; background: var(--hot-pink); color: #fff;">GAME PROGRAMMER // DECARTEL</div>
+                    <p>MMO RPG. Built multiplayer on UE5 GAS for hundreds of concurrent players. Optimized networking to <span class="neon-stat lime">cut bandwidth by 40%</span>, resolving desync issues breaking the player economy.</p>
+                </div>
             </div>
         </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="py-8 border-t border-dark-border">
-        <div class="max-w-6xl mx-auto px-6 text-center">
-            <p class="text-gray-500 font-mono text-sm">
-                <span class="text-neon-cyan">&lt;</span>
-                Built with passion and precision
-                <span class="text-neon-pink">/&gt;</span>
-            </p>
+        <!-- WINDOW 6: 2040WORLD -->
+        <div class="window" id="win-2040world">
+            <div class="win-titlebar">
+                <span>PROJ_04.SYS: 2040WORLD</span>
+                <div class="win-btns"><span class="win-btn btn-cyan"></span></div>
+            </div>
+            <div class="win-content" style="background: #000020;">
+                <img src="https://2040world.io/assets/img/game-play/bg-gameplay.jpg" alt="2040World" style="width:100%; height:140px; object-fit:cover; border:2px solid var(--lime); box-shadow: 3px 3px 0 var(--cyan); margin-bottom:14px;">
+                <h3 class="sub-title" style="color: var(--lime); text-shadow: 1px 1px 0 #000;">2040WORLD</h3>
+                <div class="highlight-box" style="font-size: 0.6rem;">SOFTWARE ENGINEER // OCT '24 – FEB '25</div>
+                <p>Stabilized a struggling codebase — <span class="neon-stat">cut bug count by 70%</span>. Overhauled the UI library (QT6). Re-architected backend/launcher/game integration, eliminating cross-module failures.</p>
+            </div>
         </div>
-    </footer>
+
+        <!-- WINDOW 7: SPORTS SIM NDA -->
+        <div class="window" id="win-sportssim">
+            <div class="win-titlebar">
+                <span>PROJ_05.SYS: CLASSIFIED</span>
+                <div class="win-btns"><span class="win-btn"></span></div>
+            </div>
+            <div class="win-content" style="background: #100010;">
+                <div style="background: repeating-linear-gradient(45deg, rgba(255,0,255,0.04), rgba(255,0,255,0.04) 10px, transparent 10px, transparent 20px); padding: 20px; border: 1px dashed var(--hot-pink); margin-bottom: 14px; text-align: center;">
+                    <span style="font-family: var(--font-future); font-size: 0.8rem; letter-spacing: 4px; color: var(--hot-pink);">// NDA PROTECTED //</span>
+                </div>
+                <h3 class="sub-title" style="color: var(--hot-pink); text-shadow: 1px 1px 0 #000;">SPORTS SIM</h3>
+                <div class="highlight-box" style="font-size: 0.6rem; background: var(--hot-pink); color: #fff;">SOFTWARE ENGINEER // 4PEOPLE // MAR '25 – PRES</div>
+                <p>Building core systems for a real-time sports title. Camera System with broadcast-quality tracking, Rally Replay with slow-motion and filtering, Reaction Systems, Commentator System. <span class="neon-stat">80+ tasks across 25+ sprints.</span></p>
+            </div>
+        </div>
+
+    </div>
 
     <script>
-        // Mobile menu toggle
-        const menuToggle = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-        
-        menuToggle.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    // Close mobile menu if open
-                    mobileMenu.classList.add('hidden');
-                }
+        // Optional: click to bring window "forward" visually
+        let zTop = 100;
+        document.querySelectorAll('.window').forEach(w => {
+            w.addEventListener('mousedown', () => {
+                zTop++;
+                w.style.zIndex = zTop;
+                w.style.position = 'relative';
             });
-        });
-
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-slide-up');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.hover-lift, .skill-tag').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            observer.observe(el);
-        });
-
-        // Animate stat bars on scroll
-        const statObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const bars = entry.target.querySelectorAll('.stat-bar');
-                    bars.forEach(bar => {
-                        const width = bar.style.width;
-                        bar.style.width = '0';
-                        setTimeout(() => {
-                            bar.style.width = width;
-                        }, 200);
-                    });
-                    statObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.5 });
-
-        document.querySelectorAll('.card-glow').forEach(el => {
-            statObserver.observe(el);
         });
     </script>
 </body>
+
 </html>
