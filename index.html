@@ -1,545 +1,417 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>~*~ LEV POLIAKOV // ENGINE CORE ~*~</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --hot-pink: #FF00FF;
-            --cyan: #00FFFF;
-            --lime: #39FF14;
-            --chrome-light: #e8e8e8;
-            --chrome-mid: #c0c0c0;
-            --chrome-dark: #808080;
-            --chrome-bg: linear-gradient(180deg, #e8e8e8 0%, #c8c8c8 40%, #a0a0a0 60%, #d0d0d0 100%);
-            --font-display: 'Archivo Black', sans-serif;
-            --font-thick: 'Anton', sans-serif;
-            --font-future: 'Orbitron', sans-serif;
-            --font-body: Verdana, Tahoma, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lev Poliakov — Game Logic Programmer</title>
+<meta name="description" content="Lev Poliakov — game logic programmer in UE5 C++. Combat, AI, inventory, multiplayer.">
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
 
-        /* Background covers EVERYTHING via html */
-        html {
-            background: #0A0A0F;
-            /* Subtle grid pattern — authentic Y2K dark with faint grid */
-            background-image:
-                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            min-height: 100%;
-        }
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; }
+body { background: #000010; color: #fff; overflow-x: hidden; }
 
-        body {
-            color: #fff;
-            font-family: var(--font-body);
-            font-size: 15px;
-            line-height: 1.6;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
+.view { display: none; }
+.view.on { display: block; }
+.sr-only { position: absolute; width: 1px; height: 1px; clip: rect(0,0,0,0); overflow: hidden; }
 
-        /* CRT Scan Lines Overlay — decorative layer, not structural */
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 0, 0, 0.08) 2px,
-                rgba(0, 0, 0, 0.08) 4px
-            );
-            pointer-events: none;
-            z-index: 9999;
-        }
+/* ═══════════════════════════════════════════════════════════
+   CRACKTRO — scene release homepage
+   ═══════════════════════════════════════════════════════════ */
+.d1 {
+  --bg: #000010;
+  --fg: #e8e8ec;
+  --c1: #00ffd5;
+  --c2: #ff00aa;
+  --c3: #ffd700;
+  --c4: #00ff66;
+  --c5: #ff5500;
+  --dim: #5a5a7a;
+  font-family: 'VT323', monospace;
+  background: var(--bg); color: var(--fg);
+  min-height: 100vh;
+  font-size: 20px; line-height: 1.3;
+  padding-bottom: 80px;
+  position: relative;
+}
+.d1::before {
+  content: ''; position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg,
+    transparent 0 2px, rgba(255,255,255,0.025) 2px 3px);
+  pointer-events: none; z-index: 50;
+}
+.d1 a { color: inherit; text-decoration: none; }
 
-        /* Watermark title */
-        .master-title {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: var(--font-display);
-            font-size: clamp(5rem, 18vw, 20rem);
-            white-space: nowrap;
-            color: transparent;
-            -webkit-text-stroke: 1px rgba(255, 0, 255, 0.12);
-            z-index: 0;
-            pointer-events: none;
-        }
+.d1-copper {
+  height: 50px;
+  background: linear-gradient(180deg,
+    var(--c2) 0%, var(--c5) 20%, var(--c3) 38%, var(--c4) 55%,
+    var(--c1) 72%, var(--c2) 90%, var(--c5) 100%);
+  filter: contrast(1.1) saturate(1.4);
+  background-size: 100% 200%;
+  animation: d1-cu 6s linear infinite;
+}
+@keyframes d1-cu { 0% { background-position: 0 0; } 100% { background-position: 0 200%; } }
 
-        /* ─── WINDOW GRID ─── */
-        .windows-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 30px 24px 80px;
-            position: relative;
-            z-index: 10;
-        }
+.d1-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 60px 24px 0;
+  position: relative; z-index: 2;
+}
 
-        /* Window base */
-        .window {
-            background: #000;
-            border: 3px solid var(--chrome-mid);
-            box-shadow:
-                inset 1px 1px 0px rgba(255, 255, 255, 0.4),
-                inset -1px -1px 0px rgba(0, 0, 0, 0.8),
-                8px 8px 0px rgba(255, 0, 255, 0.5);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+.d1-ascii {
+  color: var(--c2);
+  font-family: 'VT323', monospace;
+  font-size: 13px; line-height: 1;
+  white-space: pre; text-align: center;
+  text-shadow: 0 0 6px rgba(255,0,170,0.5);
+  margin: 0 0 14px;
+  opacity: 0.85;
+}
 
-        /* Span full row for big projects */
-        .window.wide {
-            grid-column: span 2;
-        }
+.d1-name {
+  font-family: 'Press Start 2P', monospace;
+  color: var(--c3);
+  font-size: clamp(20px, 4.4vw, 42px);
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-shadow: 3px 3px 0 var(--c2), 6px 6px 0 var(--c1);
+  line-height: 1.3;
+}
 
-        .win-titlebar {
-            background: var(--chrome-bg);
-            padding: 6px 10px;
-            color: #000;
-            font-family: var(--font-future);
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #555;
-            flex-shrink: 0;
-            cursor: grab;
-            user-select: none;
-        }
+.d1-intro {
+  margin: 32px auto 0;
+  max-width: 540px;
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--fg);
+}
 
-        .win-titlebar:active { cursor: grabbing; }
+.d1-menu { margin-top: 40px; }
+.d1-menu .head {
+  font-family: 'Press Start 2P', monospace;
+  color: var(--c2);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  margin-bottom: 12px;
+}
+.d1-menu ul { list-style: none; }
+.d1-menu li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px dashed rgba(255,255,255,0.06);
+  font-size: 22px;
+}
+.d1-menu li:last-child { border-bottom: 0; }
+.d1-menu li:hover { background: rgba(0,255,213,0.06); }
+.d1-menu li .arrow {
+  color: var(--c4);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  flex-shrink: 0;
+  width: 30px;
+}
+.d1-menu li .key { color: var(--c3); flex-shrink: 0; }
+.d1-menu li .name { color: var(--fg); flex: 1; }
+.d1-menu li .name b { color: var(--c1); }
+.d1-menu li .href {
+  color: var(--dim);
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.d1-menu li.ext .arrow { color: var(--c5); }
+.d1-menu li.ext .arrow::before { content: '↗'; }
+.d1-menu li.int .arrow::before { content: '▸'; }
 
-        .win-btns {
-            display: flex;
-            gap: 4px;
-        }
+.d1-foot {
+  margin-top: 50px;
+  text-align: center;
+  font-size: 18px;
+  color: var(--dim);
+}
+.d1-foot .eof { color: var(--c2); }
 
-        .win-btn {
-            background: var(--hot-pink);
-            border: 1px outset #fff;
-            width: 14px;
-            height: 14px;
-        }
-        .win-btn.btn-cyan { background: var(--cyan); }
-        .win-btn.btn-lime { background: var(--lime); }
+/* commercial / personal views */
+.d1-back {
+  display: inline-block;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: var(--c1);
+  margin: 14px 0 24px;
+  border: 1px solid var(--c1);
+  padding: 7px 12px;
+  letter-spacing: 0.1em;
+}
+.d1-back:hover { background: var(--c1); color: #000; }
 
-        /* Window content — NO max-height, NO scroll */
-        .win-content {
-            padding: 20px;
-            color: #D0D0D0;
-        }
+.d1-h2 {
+  font-family: 'Press Start 2P', monospace;
+  color: var(--c3);
+  font-size: 24px;
+  letter-spacing: 0.04em;
+  text-shadow: 3px 3px 0 var(--c2);
+  margin-bottom: 20px;
+}
 
-        /* 3D Text */
-        .text-3d {
-            font-family: var(--font-thick);
-            font-size: 2.4rem;
-            color: var(--lime);
-            text-shadow: 2px 2px 0 #000, 3px 3px 0 var(--hot-pink);
-            line-height: 1;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-        }
+.d1-projlist { display: grid; gap: 18px; }
+.d1-proj {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 18px;
+  border: 1px solid var(--c2);
+  background: rgba(0,0,40,0.4);
+  padding: 16px;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+.d1-proj.flip { grid-template-columns: 280px 1fr; }
+.d1-proj:hover { background: rgba(255,0,170,0.06); }
+.d1-proj::before {
+  content: attr(data-tag);
+  position: absolute; top: -10px; left: 14px;
+  background: var(--c2); color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px; padding: 4px 10px;
+  letter-spacing: 0.1em;
+}
+.d1-proj h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px; color: var(--c3);
+  margin: 6px 0 6px;
+  text-shadow: 2px 2px 0 var(--c2);
+}
+.d1-proj .who {
+  font-size: 18px; color: var(--c1);
+  margin-bottom: 8px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.d1-proj p { font-size: 19px; line-height: 1.3; }
+.d1-proj p .hl  { color: var(--c3); }
+.d1-proj p .hlm { color: var(--c2); }
+.d1-proj p .hlc { color: var(--c1); }
 
-        .highlight-box {
-            background: var(--cyan);
-            color: #000;
-            font-weight: bold;
-            font-family: var(--font-future);
-            font-size: 0.65rem;
-            letter-spacing: 1px;
-            padding: 6px 10px;
-            display: inline-block;
-            margin: 4px 0 12px 0;
-            border: 2px solid #000;
-        }
+.d1-vid {
+  aspect-ratio: 16/9;
+  border: 2px solid var(--c1);
+  background: #000;
+  box-shadow: 3px 3px 0 var(--c2);
+}
+.d1-vid iframe { width: 100%; height: 100%; border: 0; }
 
-        /* Videos */
-        .video-container {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            margin: 16px 0;
-            border: 3px solid var(--lime);
-            box-shadow: 4px 4px 0 var(--hot-pink);
-            background: #111;
-        }
-        .video-container iframe {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+.d1-mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 4px;
+}
+.d1-mini {
+  border: 1px solid var(--c4);
+  padding: 12px;
+  background: rgba(0,0,40,0.4);
+  position: relative;
+  text-decoration: none; color: inherit;
+}
+.d1-mini::before {
+  content: attr(data-tag);
+  position: absolute; top: -10px; left: 12px;
+  background: var(--c4); color: #000;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px; padding: 3px 8px;
+  letter-spacing: 0.1em;
+}
+.d1-mini h4 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px; color: var(--c1);
+  margin: 6px 0 4px;
+  text-shadow: 2px 2px 0 var(--c2);
+}
+.d1-mini .role { font-size: 16px; color: var(--c3); margin-bottom: 4px; }
+.d1-mini p { font-size: 16px; line-height: 1.3; }
 
-        /* Bullet list Y2K style */
-        .y2k-list {
-            list-style: none;
-            margin-top: 14px;
-        }
-        .y2k-list li {
-            padding: 8px 0 8px 20px;
-            position: relative;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
-        .y2k-list li::before {
-            content: '>';
-            position: absolute;
-            left: 0;
-            color: var(--lime);
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-        }
-
-        /* Neon stat highlight */
-        .neon-stat {
-            color: var(--cyan);
-            font-weight: bold;
-        }
-        .neon-stat.pink { color: var(--hot-pink); }
-        .neon-stat.lime { color: var(--lime); }
-
-        .stat-pill {
-            display: inline-block;
-            background: var(--hot-pink);
-            color: #fff;
-            padding: 2px 8px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        /* Terminal block */
-        .terminal-block {
-            background: rgba(0, 255, 255, 0.04);
-            border-left: 3px solid var(--cyan);
-            padding: 12px 16px;
-            margin-top: 12px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.95rem;
-            line-height: 1.9;
-            color: var(--cyan);
-        }
-        .terminal-block strong {
-            color: #fff;
-        }
-
-        /* Status box */
-        .status-box {
-            background: rgba(0, 255, 255, 0.06);
-            border: 1px solid var(--cyan);
-            padding: 12px;
-            margin-top: 12px;
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            line-height: 1.8;
-        }
-
-        /* Link buttons */
-        .links-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
-        .link-button {
-            flex: 1;
-            display: block;
-            text-align: center;
-            background: var(--lime);
-            color: #000;
-            font-family: var(--font-future);
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-decoration: none;
-            border: 3px outset #fff;
-            padding: 10px 8px;
-            text-transform: uppercase;
-            transition: background 0.15s, border-style 0.15s;
-        }
-        .link-button:hover {
-            background: var(--cyan);
-            border-style: inset;
-        }
-
-        /* Marquee ticker */
-        .fast-marquee {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--hot-pink);
-            color: #fff;
-            font-family: var(--font-thick);
-            font-size: 1.6rem;
-            padding: 4px 0;
-            border-top: 3px solid #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            z-index: 1000;
-        }
-        .ticker {
-            display: inline-block;
-            animation: marquee-scroll 12s linear infinite;
-        }
-        .ticker span {
-            padding: 0 40px;
-        }
-        @keyframes marquee-scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        /* Sub-project split inside a window */
-        .sub-project {
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        .sub-project:last-child { margin-bottom: 0; }
-        .sub-project.border-lime { border-left: 4px solid var(--lime); background: rgba(57, 255, 20, 0.03); }
-        .sub-project.border-pink { border-left: 4px solid var(--hot-pink); background: rgba(255, 0, 255, 0.03); }
-
-        .sub-title {
-            font-family: var(--font-thick);
-            font-size: 1.6rem;
-            text-transform: uppercase;
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-
-        /* ─── RESPONSIVE ─── */
-        @media (max-width: 900px) {
-            .windows-container {
-                grid-template-columns: 1fr;
-                padding: 16px 12px 80px;
-                gap: 16px;
-            }
-            .window.wide {
-                grid-column: span 1;
-            }
-            .text-3d {
-                font-size: 1.8rem;
-            }
-            .links-row {
-                flex-direction: column;
-            }
-            .master-title {
-                font-size: clamp(2rem, 12vw, 5rem);
-            }
-            .fast-marquee {
-                font-size: 1.1rem;
-            }
-        }
-    </style>
+@media (max-width: 760px) {
+  .d1-proj, .d1-proj.flip { grid-template-columns: 1fr; }
+  .d1-mini-grid { grid-template-columns: 1fr; }
+}
+</style>
 </head>
-
 <body>
 
-    <a rel="me" href="https://mastodon.social/@sungrow" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Mastodon</a>
+<a rel="me" class="sr-only" href="https://mastodon.social/@sungrow">Mastodon</a>
 
-    <h1 class="master-title">UE ENGINEER</h1>
+<section class="d1">
 
-    <div class="fast-marquee">
-        <div class="ticker">
-            <span>LEV POLIAKOV</span><span>// C++ MULTITHREADING</span><span>// VULKAN</span><span>// 5 SHIPPED TITLES</span><span>// AVAILABLE NOW</span>
-            <span>LEV POLIAKOV</span><span>// C++ MULTITHREADING</span><span>// VULKAN</span><span>// 5 SHIPPED TITLES</span><span>// AVAILABLE NOW</span>
-        </div>
+  <div class="d1-copper"></div>
+
+  <!-- HOME -->
+  <div class="view on" data-view="home">
+    <div class="d1-wrap">
+
+      <pre class="d1-ascii">
+   ░░▓▓██     L E V P . D E V     ██▓▓░░
+      </pre>
+
+      <h1 class="d1-name">LEV POLIAKOV</h1>
+
+      <p class="d1-intro">Game logic programmer. UE5 C++ — combat, AI, inventory, multiplayer.</p>
+
+      <nav class="d1-menu" aria-label="Site menu">
+        <div class="head">.: MENU :.</div>
+        <ul>
+          <li class="int" data-view-link="commercial">
+            <span class="arrow"></span>
+            <span class="key">F1</span>
+            <span class="name"><b>commercial projects</b> — five titles</span>
+            <span class="href">/commercial</span>
+          </li>
+          <li class="int" data-view-link="personal">
+            <span class="arrow"></span>
+            <span class="key">F2</span>
+            <span class="name"><b>personal projects</b></span>
+            <span class="href">/personal</span>
+          </li>
+          <li class="ext">
+            <a href="https://github.com/sungrow" target="_blank" style="display:contents;">
+              <span class="arrow"></span>
+              <span class="key">F3</span>
+              <span class="name"><b>github</b></span>
+              <span class="href">@sungrow</span>
+            </a>
+          </li>
+          <li class="ext">
+            <a href="https://linkedin.com/in/sungrow" target="_blank" style="display:contents;">
+              <span class="arrow"></span>
+              <span class="key">F4</span>
+              <span class="name"><b>linkedin</b></span>
+              <span class="href">/in/sungrow</span>
+            </a>
+          </li>
+          <li class="ext">
+            <a href="https://mastodon.social/@sungrow" target="_blank" style="display:contents;">
+              <span class="arrow"></span>
+              <span class="key">F5</span>
+              <span class="name"><b>mastodon</b></span>
+              <span class="href">@sungrow@mastodon</span>
+            </a>
+          </li>
+          <li class="ext">
+            <a href="mailto:progsag@gmail.com" style="display:contents;">
+              <span class="arrow"></span>
+              <span class="key">F6</span>
+              <span class="name"><b>email</b></span>
+              <span class="href">progsag@gmail.com</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="d1-foot">
+        <span class="eof">─── eof ───</span><br>
+        Lev Poliakov · 2026
+      </div>
     </div>
+  </div>
 
-    <div class="windows-container">
+  <!-- COMMERCIAL -->
+  <div class="view" data-view="commercial">
+    <div class="d1-wrap">
+      <a class="d1-back" href="#" data-view-link="home">◀ BACK TO MENU</a>
+      <h2 class="d1-h2">/COMMERCIAL · 5 RELEASES</h2>
 
-        <!-- WINDOW 1: IDENTITY -->
-        <div class="window" id="win-about">
-            <div class="win-titlebar">
-                <span>SYS_INFO.EXE</span>
-                <div class="win-btns"><span class="win-btn"></span><span class="win-btn btn-cyan"></span><span class="win-btn btn-lime"></span></div>
-            </div>
-            <div class="win-content">
-                <h2 class="text-3d">LEV POLIAKOV</h2>
-                <div class="highlight-box">UNREAL ENGINE C++ DEVELOPER</div>
-                <p>I build the systems that ship games. From multithreaded conveyor networks processing 50K resources to custom Vulkan pipelines doubling frame rates — I solve the hard engineering problems that make or break production titles.</p>
-                <div class="status-box">
-                    <p style="color: var(--cyan);">>>> STATUS: <strong style="color:#fff">AVAILABLE</strong></p>
-                    <p style="color: var(--hot-pink);">>>> SHIPPED: <strong style="color:#fff">5 TITLES</strong></p>
-                    <p style="color: var(--lime);">>>> LEAD EXP: <strong style="color:#fff">4+ YEARS</strong></p>
-                </div>
-                <div class="links-row">
-                    <a href="mailto:progsag@gmail.com" class="link-button">EMAIL</a>
-                    <a href="https://github.com/sungrow" target="_blank" class="link-button" style="background:var(--cyan);">GITHUB</a>
-                    <a href="https://linkedin.com/in/sungrow" target="_blank" class="link-button" style="background:var(--hot-pink); color:#fff;">LINKEDIN</a>
-                </div>
-            </div>
+      <div class="d1-projlist">
+
+        <a class="d1-proj" href="https://store.steampowered.com/app/1465470/The_Crust/" target="_blank" data-tag="◤ REL.001 ◢">
+          <div>
+            <h3>THE CRUST</h3>
+            <div class="who">VEOM STUDIO · LEAD CONVEYOR ENGINEER · JAN '20 — MAR '24</div>
+            <p>4 years lead on a Factorio-scale lunar base-builder. Multithreaded conveyor pipeline, custom Vulkan path, save format that survives 2.5M nodes.</p>
+            <p><span class="hl">15×</span> fps · <span class="hl">2ms</span>/50k res · <span class="hl">−90%</span> load · <span class="hlm">2×</span> Vulkan</p>
+          </div>
+          <div class="d1-vid"><iframe src="https://www.youtube-nocookie.com/embed/-7-pgPDQ89s?rel=0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="The Crust"></iframe></div>
+        </a>
+
+        <a class="d1-proj flip" href="https://store.steampowered.com/app/2458560/Zoochosis/" target="_blank" data-tag="◤ REL.002 ◢" style="border-color: var(--c1);">
+          <div class="d1-vid" style="border-color: var(--c2); box-shadow: 3px 3px 0 var(--c3);"><iframe src="https://www.youtube-nocookie.com/embed/RejEUXIGPQ0?rel=0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="Zoochosis"></iframe></div>
+          <div>
+            <h3 style="color: var(--c1); text-shadow: 2px 2px 0 var(--c1);">ZOOCHOSIS</h3>
+            <div class="who" style="color: var(--c3);">CLAPPERHEADS · CONTRACT · JAN '25 — FEB '25</div>
+            <p>Bodycam horror sim. <span class="hl">Inventory overhaul</span> · <span class="hlm">AI rework</span> · <span class="hl">critical-bug triage</span>.</p>
+          </div>
+        </a>
+
+        <div class="d1-mini-grid">
+          <a class="d1-mini" href="#" data-tag="◤ REL.003 ◢">
+            <h4>MALICE</h4>
+            <div class="role">DECARTEL · JUL '23 — APR '24</div>
+            <p>Cyberpunk action RPG. Reworked combat &amp; camera for tighter Max-Payne gun-fu — improved engagement metrics.</p>
+          </a>
+          <a class="d1-mini" href="#" data-tag="◤ REL.004 ◢">
+            <h4>METAVERSE</h4>
+            <div class="role">DECARTEL · MMO RPG</div>
+            <p>UE5 GAS multiplayer for hundreds concurrent. −40% bandwidth, fixed the desyncs breaking the economy.</p>
+          </a>
+          <a class="d1-mini" href="#" data-tag="◤ REL.005 ◢" style="border-color: var(--c5);">
+            <h4 style="color: var(--c5);">2040WORLD</h4>
+            <div class="role">OCT '24 — FEB '25</div>
+            <p>Stabilized a struggling codebase — −70% bug count. QT6 UI overhaul. Re-architected backend/launcher/game.</p>
+          </a>
+          <a class="d1-mini" href="#" data-tag="◤ REL.006 · NDA ◢" style="border-color: var(--c2);">
+            <h4 style="color: var(--c2);">SPORTS SIM <span style="color: var(--c3); font-size: 9px;">[NDA]</span></h4>
+            <div class="role">4PEOPLE · MAR '25 — PRES</div>
+            <p>Camera, Rally Replay, Reaction, Commentator. 80+ tasks across 25+ sprints.</p>
+          </a>
         </div>
 
-        <!-- WINDOW 2: TECH STACK -->
-        <div class="window" id="win-skills">
-            <div class="win-titlebar">
-                <span>TECH_STACK.DLL</span>
-                <div class="win-btns"><span class="win-btn btn-lime"></span></div>
-            </div>
-            <div class="win-content" style="background: #001100; border: 2px solid rgba(57,255,20,0.3);">
-                <div style="font-family: 'Courier New', monospace; font-size: 1.05rem; line-height: 2.2; color: var(--lime);">
-                    > UE4 // UE5<br>
-                    > C++14 // C++20<br>
-                    > HLSL SHADERS<br>
-                    > VULKAN GRAPHICS<br>
-                    > MULTITHREADING<br>
-                    > GAMEPLAY ABILITY SYS<br>
-                    > NETWORK REPLICATION<br>
-                    > MEMORY PROFILING<br>
-                    > QT6 UI SYSTEMS<br>
-                    > SAVE/LOAD ARCHITECTURE
-                </div>
-            </div>
-        </div>
-
-        <!-- WINDOW 3: THE CRUST — full width -->
-        <div class="window wide" id="win-crust">
-            <div class="win-titlebar">
-                <span>PROJ_01.MPG: THE CRUST</span>
-                <div class="win-btns"><span class="win-btn btn-lime"></span><span class="win-btn"></span></div>
-            </div>
-            <div class="win-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                <div>
-                    <h2 class="text-3d" style="color: var(--cyan);">THE CRUST</h2>
-                    <div class="highlight-box" style="background: var(--hot-pink); color: #fff;">VEOM STUDIO // LEAD CONVEYOR ENGINEER // JAN '20 – MAR '24</div>
-                    <p style="margin-top: 10px;">4 years as lead engineer on a Factorio-scale lunar base builder. I engineered a multithreaded conveyor system processing <span class="neon-stat">50,000+ resources in under 2ms</span>, enabling massive factory builds without lag.</p>
-                    <ul class="y2k-list">
-                        <li>Performance: <span class="neon-stat pink">4 FPS → 60 FPS</span> — a <span class="stat-pill">15× improvement</span> via multithreading + custom HLSL shaders</li>
-                        <li>Custom save system cutting load times by <span class="neon-stat">90%</span></li>
-                        <li>Custom Vulkan pipeline — <span class="neon-stat lime">2× frame rate</span> over default renderer</li>
-                        <li>Animation system <span class="neon-stat lime">10× faster</span> than UE4 default</li>
-                        <li>Dynamic market system + <span class="neon-stat">2.5M resource nodes</span> concurrently managed</li>
-                    </ul>
-                    <div style="margin-top: 16px;">
-                        <a href="https://store.steampowered.com/app/1465470/The_Crust/" target="_blank" class="link-button" style="display: inline-block; width: auto; padding: 8px 24px;">VIEW ON STEAM →</a>
-                    </div>
-                </div>
-                <div>
-                    <div class="video-container">
-                        <iframe src="https://www.youtube-nocookie.com/embed/-7-pgPDQ89s?rel=0" title="The Crust Trailer"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- WINDOW 4: ZOOCHOSIS — full width -->
-        <div class="window wide" id="win-zoochosis">
-            <div class="win-titlebar">
-                <span>PROJ_02.MPG: ZOOCHOSIS</span>
-                <div class="win-btns"><span class="win-btn btn-cyan"></span></div>
-            </div>
-            <div class="win-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                <div>
-                    <h2 class="text-3d" style="color: var(--hot-pink);">ZOOCHOSIS</h2>
-                    <div class="highlight-box" style="background: var(--lime);">CLAPPERHEADS // CONTRACT // JAN '25 – FEB '25</div>
-                    <p style="margin-top: 10px;">Short-term contract to solve pain points in a bodycam horror simulation with strong community buzz.</p>
-                    <div class="terminal-block">
-                        > <strong>INVENTORY OVERHAUL:</strong> Fixed accessibility, broadened game appeal<br>
-                        > <strong>AI REWORK:</strong> Replaced repetitive behaviors with unpredictable encounters<br>
-                        > <strong>BUG FIXES:</strong> Squashed critical bugs driving negative reviews
-                    </div>
-                    <div style="margin-top: 16px;">
-                        <a href="https://store.steampowered.com/app/2458560/Zoochosis/" target="_blank" class="link-button" style="display: inline-block; width: auto; padding: 8px 24px; background: var(--cyan);">VIEW ON STEAM →</a>
-                    </div>
-                </div>
-                <div>
-                    <div class="video-container" style="border-color: var(--hot-pink); box-shadow: 4px 4px 0 var(--cyan);">
-                        <iframe src="https://www.youtube-nocookie.com/embed/RejEUXIGPQ0?rel=0" title="Zoochosis Trailer"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- WINDOW 5: DECARTEL -->
-        <div class="window" id="win-meta">
-            <div class="win-titlebar">
-                <span>PROJ_03.SYS: DECARTEL</span>
-                <div class="win-btns"><span class="win-btn"></span><span class="win-btn btn-lime"></span></div>
-            </div>
-            <div class="win-content">
-                <div class="sub-project border-lime">
-                    <img src="https://optim.tildacdn.one/tild6532-3233-4334-b262-316137653134/-/resize/575x/-/format/webp/_malice_illustration.png.webp" alt="Malice" style="width:100%; height:100px; object-fit:cover; border:2px solid var(--lime); margin-bottom:10px;">
-                    <h3 class="sub-title" style="color: var(--lime); text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(57,255,20,0.3);">MALICE</h3>
-                    <div class="highlight-box" style="font-size: 0.6rem;">GAME PROGRAMMER // DECARTEL // JUL '23 – APR '24</div>
-                    <p>Cyberpunk action RPG. Reworked the combat and camera systems for tighter gun-fu feel inspired by Max Payne — directly improved player engagement metrics.</p>
-                </div>
-                <div class="sub-project border-pink">
-                    <img src="https://optim.tildacdn.one/tild3037-3065-4565-b331-616637373462/-/resize/575x/-/format/webp/0_5.png.webp" alt="Metaverse" style="width:100%; height:100px; object-fit:cover; border:2px solid var(--hot-pink); margin-bottom:10px;">
-                    <h3 class="sub-title" style="color: var(--cyan); text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(255,0,255,0.3);">METAVERSE</h3>
-                    <div class="highlight-box" style="font-size: 0.6rem; background: var(--hot-pink); color: #fff;">GAME PROGRAMMER // DECARTEL</div>
-                    <p>MMO RPG. Built multiplayer on UE5 GAS for hundreds of concurrent players. Optimized networking to <span class="neon-stat lime">cut bandwidth by 40%</span>, resolving desync issues breaking the player economy.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- WINDOW 6: 2040WORLD -->
-        <div class="window" id="win-2040world">
-            <div class="win-titlebar">
-                <span>PROJ_04.SYS: 2040WORLD</span>
-                <div class="win-btns"><span class="win-btn btn-cyan"></span></div>
-            </div>
-            <div class="win-content" style="background: #000020;">
-                <img src="https://2040world.io/assets/img/game-play/bg-gameplay.jpg" alt="2040World" style="width:100%; height:140px; object-fit:cover; border:2px solid var(--lime); box-shadow: 3px 3px 0 var(--cyan); margin-bottom:14px;">
-                <h3 class="sub-title" style="color: var(--lime); text-shadow: 1px 1px 0 #000;">2040WORLD</h3>
-                <div class="highlight-box" style="font-size: 0.6rem;">SOFTWARE ENGINEER // OCT '24 – FEB '25</div>
-                <p>Stabilized a struggling codebase — <span class="neon-stat">cut bug count by 70%</span>. Overhauled the UI library (QT6). Re-architected backend/launcher/game integration, eliminating cross-module failures.</p>
-            </div>
-        </div>
-
-        <!-- WINDOW 7: SPORTS SIM NDA -->
-        <div class="window" id="win-sportssim">
-            <div class="win-titlebar">
-                <span>PROJ_05.SYS: CLASSIFIED</span>
-                <div class="win-btns"><span class="win-btn"></span></div>
-            </div>
-            <div class="win-content" style="background: #100010;">
-                <div style="background: repeating-linear-gradient(45deg, rgba(255,0,255,0.04), rgba(255,0,255,0.04) 10px, transparent 10px, transparent 20px); padding: 20px; border: 1px dashed var(--hot-pink); margin-bottom: 14px; text-align: center;">
-                    <span style="font-family: var(--font-future); font-size: 0.8rem; letter-spacing: 4px; color: var(--hot-pink);">// NDA PROTECTED //</span>
-                </div>
-                <h3 class="sub-title" style="color: var(--hot-pink); text-shadow: 1px 1px 0 #000;">SPORTS SIM</h3>
-                <div class="highlight-box" style="font-size: 0.6rem; background: var(--hot-pink); color: #fff;">SOFTWARE ENGINEER // 4PEOPLE // MAR '25 – PRES</div>
-                <p>Building core systems for a real-time sports title. Camera System with broadcast-quality tracking, Rally Replay with slow-motion and filtering, Reaction Systems, Commentator System. <span class="neon-stat">80+ tasks across 25+ sprints.</span></p>
-            </div>
-        </div>
-
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Optional: click to bring window "forward" visually
-        let zTop = 100;
-        document.querySelectorAll('.window').forEach(w => {
-            w.addEventListener('mousedown', () => {
-                zTop++;
-                w.style.zIndex = zTop;
-                w.style.position = 'relative';
-            });
-        });
-    </script>
+  <!-- PERSONAL -->
+  <div class="view" data-view="personal">
+    <div class="d1-wrap">
+      <a class="d1-back" href="#" data-view-link="home">◀ BACK TO MENU</a>
+      <h2 class="d1-h2" style="color: var(--c4); text-shadow: 3px 3px 0 var(--c1);">/PERSONAL</h2>
+
+      <div class="d1-projlist">
+
+        <a class="d1-proj" href="/stickfight" data-tag="◤ PERSONAL ◢" style="border-color: var(--c4);">
+          <div>
+            <h3 style="color: var(--c4); text-shadow: 2px 2px 0 var(--c1);">STICKFIGHT</h3>
+            <div class="who" style="color: var(--c3);">PLAYABLE WEB DEMO</div>
+            <p>Stick-figure fighting game, playable in the browser. Routed under <span class="hl">/stickfight</span>.</p>
+          </div>
+          <div class="d1-vid" style="border-color: var(--c4); box-shadow: 3px 3px 0 var(--c1); display: flex; align-items: center; justify-content: center;">
+            <span style="font-family: 'Press Start 2P', monospace; font-size: 12px; color: var(--c4); letter-spacing: 0.1em; text-align: center; line-height: 1.6;">▶ PRESS<br>START</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  document.querySelectorAll('[data-view-link]').forEach(el => {
+    el.addEventListener('click', e => {
+      const target = el.dataset.viewLink;
+      document.querySelectorAll('.view').forEach(v => {
+        v.classList.toggle('on', v.dataset.view === target);
+      });
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+  });
+</script>
+
 </body>
-
 </html>
