@@ -151,12 +151,14 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 }
 .d1-menu ul { list-style: none; }
 .d1-menu li {
+  border-bottom: 1px dashed rgba(255,255,255,0.06);
+  font-size: 22px;
+}
+.d1-menu li > a {
   display: flex;
   align-items: baseline;
   gap: 12px;
   padding: 8px 12px;
-  border-bottom: 1px dashed rgba(255,255,255,0.06);
-  font-size: 22px;
 }
 .d1-menu li:last-child { border-bottom: 0; }
 .d1-menu li { cursor: pointer; transition: background 0.12s; }
@@ -168,6 +170,12 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
   text-shadow: 0 0 9px rgba(255,215,0,0.5);
 }
 .d1-menu li.sel { outline: 1px dashed rgba(0,255,213,0.35); outline-offset: -1px; }
+.d1-menu li:has(a:focus-visible) {
+  background: rgba(0,255,213,0.06);
+  outline: 1px dashed rgba(0,255,213,0.35);
+  outline-offset: -1px;
+}
+.d1-menu li a:focus { outline: none; }
 .d1-menu li:hover .arrow::before, .d1-menu li.sel .arrow::before {
   animation: d1-blink 0.7s steps(1) infinite;
 }
@@ -371,7 +379,8 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 @media (max-width: 760px) {
   .d1-proj, .d1-proj.flip { grid-template-columns: 1fr; }
   .d1-mini-grid { grid-template-columns: 1fr; }
-  .d1-menu li { font-size: 19px; gap: 8px; }
+  .d1-menu li { font-size: 19px; }
+  .d1-menu li > a { gap: 8px; }
   .d1-menu li .href {
     font-size: 13px;
     max-width: 38%;
@@ -416,46 +425,50 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
       <nav class="d1-menu" aria-label="Site menu">
         <div class="head">.: MENU :.</div>
         <ul>
-          <li class="int" data-view-link="commercial">
-            <span class="arrow"></span>
-            <span class="key">F1</span>
-            <span class="name"><b>commercial projects</b> — five titles</span>
-            <span class="href">/commercial</span>
+          <li class="int">
+            <a href="#commercial" data-view-link="commercial">
+              <span class="arrow"></span>
+              <span class="key">1</span>
+              <span class="name"><b>commercial projects</b> — five titles</span>
+              <span class="href">/commercial</span>
+            </a>
           </li>
-          <li class="int" data-view-link="personal">
-            <span class="arrow"></span>
-            <span class="key">F2</span>
-            <span class="name"><b>personal projects</b></span>
-            <span class="href">/personal</span>
+          <li class="int">
+            <a href="#personal" data-view-link="personal">
+              <span class="arrow"></span>
+              <span class="key">2</span>
+              <span class="name"><b>personal projects</b></span>
+              <span class="href">/personal</span>
+            </a>
           </li>
           <li class="ext">
-            <a href="https://github.com/sungrow" target="_blank" style="display:contents;">
+            <a href="https://github.com/sungrow" target="_blank">
               <span class="arrow"></span>
-              <span class="key">F3</span>
+              <span class="key">3</span>
               <span class="name"><b>github</b></span>
               <span class="href">@sungrow</span>
             </a>
           </li>
           <li class="ext">
-            <a href="https://linkedin.com/in/sungrow" target="_blank" style="display:contents;">
+            <a href="https://linkedin.com/in/sungrow" target="_blank">
               <span class="arrow"></span>
-              <span class="key">F4</span>
+              <span class="key">4</span>
               <span class="name"><b>linkedin</b></span>
               <span class="href">/in/sungrow</span>
             </a>
           </li>
           <li class="ext">
-            <a href="https://mastodon.social/@sungrow" target="_blank" style="display:contents;">
+            <a href="https://mastodon.social/@sungrow" target="_blank">
               <span class="arrow"></span>
-              <span class="key">F5</span>
+              <span class="key">5</span>
               <span class="name"><b>mastodon</b></span>
               <span class="href">@sungrow@mastodon</span>
             </a>
           </li>
           <li class="ext">
-            <a href="mailto:progsag@gmail.com" style="display:contents;">
+            <a href="mailto:progsag@gmail.com">
               <span class="arrow"></span>
-              <span class="key">F6</span>
+              <span class="key">6</span>
               <span class="name"><b>email</b></span>
               <span class="href">progsag@gmail.com</span>
             </a>
@@ -505,26 +518,26 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
         </a>
 
         <div class="d1-mini-grid">
-          <a class="d1-mini" href="#" data-tag="◤ REL.003 ◢">
+          <div class="d1-mini" data-tag="◤ REL.003 ◢">
             <h4>MALICE</h4>
             <div class="role">DECARTEL · JUL '23 — APR '24</div>
             <p>Cyberpunk action RPG. Reworked combat &amp; camera for tighter Max-Payne gun-fu — improved engagement metrics.</p>
-          </a>
-          <a class="d1-mini" href="#" data-tag="◤ REL.004 ◢">
+          </div>
+          <div class="d1-mini" data-tag="◤ REL.004 ◢">
             <h4>METAVERSE</h4>
             <div class="role">DECARTEL · MMO RPG</div>
             <p>UE5 GAS multiplayer for hundreds concurrent. −40% bandwidth, fixed the desyncs breaking the economy.</p>
-          </a>
-          <a class="d1-mini" href="#" data-tag="◤ REL.005 ◢" style="border-color: var(--c5);">
+          </div>
+          <div class="d1-mini" data-tag="◤ REL.005 ◢" style="border-color: var(--c5);">
             <h4 style="color: var(--c5);">2040WORLD</h4>
             <div class="role">OCT '24 — FEB '25</div>
             <p>Stabilized a struggling codebase — −70% bug count. QT6 UI overhaul. Re-architected backend/launcher/game.</p>
-          </a>
-          <a class="d1-mini" href="#" data-tag="◤ REL.006 · NDA ◢" style="border-color: var(--c2);">
+          </div>
+          <div class="d1-mini" data-tag="◤ REL.006 · NDA ◢" style="border-color: var(--c2);">
             <h4 style="color: var(--c2);">SPORTS SIM <span style="color: var(--c3); font-size: 9px;">[NDA]</span></h4>
             <div class="role">4PEOPLE · MAR '25 — PRES</div>
             <p>Camera, Rally Replay, Reaction, Commentator. 80+ tasks across 25+ sprints.</p>
-          </a>
+          </div>
         </div>
 
       </div>
@@ -560,10 +573,13 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 
 <script>
   const views = [...document.querySelectorAll('.view')];
+  let sel = -1;
 
   function showView(target, pushHash = true) {
     if (!views.some(v => v.dataset.view === target)) target = 'home';
     views.forEach(v => v.classList.toggle('on', v.dataset.view === target));
+    sel = -1;
+    document.querySelectorAll('.d1-menu li.sel').forEach(li => li.classList.remove('sel'));
     if (pushHash) {
       const hash = target === 'home' ? '' : '#' + target;
       if (location.hash !== hash) history.pushState(null, '', hash || location.pathname);
@@ -582,9 +598,8 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
   window.addEventListener('popstate', () => showView(location.hash.slice(1) || 'home', false));
   if (location.hash) showView(location.hash.slice(1), false);
 
-  // ── keyboard: the menu advertises F1–F6, so they actually work ──
+  // ── keyboard: the menu advertises digit keys 1–6, so they actually work ──
   const menuItems = [...document.querySelectorAll('.d1-menu li')];
-  let sel = -1;
 
   function setSel(i) {
     sel = (i + menuItems.length) % menuItems.length;
@@ -604,7 +619,7 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
     if (e.key === 'Escape' && !home) { showView('home'); return; }
     if (!home) return;
 
-    const fn = /^F([1-6])$/.exec(e.key) || /^([1-6])$/.exec(e.key);
+    const fn = /^([1-6])$/.exec(e.key);
     if (fn) {
       e.preventDefault();
       activate(menuItems[+fn[1] - 1]);
