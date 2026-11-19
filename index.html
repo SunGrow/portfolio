@@ -3,12 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lev Poliakov — Gameplay Programmer</title>
-<meta name="description" content="Lev Poliakov — gameplay programmer in UE5 C++. Gameplay systems, game AI, cameras, in-game cinematics.">
+<title>Lev Poliakov · Senior Unreal Engine C++ Programmer</title>
+<meta name="description" content="Lev Poliakov, senior Unreal Engine C++ programmer. Gameplay systems, game AI, cameras, in-game cinematics, editor tooling. 6+ years, UE4 through UE 5.8.">
+<meta name="theme-color" content="#000010">
+<link rel="canonical" href="https://levp.dev/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://levp.dev/">
+<meta property="og:title" content="Lev Poliakov · Senior Unreal Engine C++ Programmer">
+<meta property="og:description" content="Gameplay systems, game AI, cameras, in-game cinematics, editor tooling. 6+ years of C++ in Unreal Engine, UE4 through UE 5.8.">
+<meta property="og:image" content="https://levp.dev/assets/images/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23000010'/%3E%3Cpath d='M6 4h3v7h4v3H6z' fill='%23ff00aa'/%3E%3Cpath d='M5 3h3v7h4v3H5z' fill='%2300ffd5'/%3E%3Cpath d='M4 2h3v7h4v3H4z' fill='%23ffd700'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lev Poliakov",
+  "jobTitle": "Senior Unreal Engine C++ Programmer",
+  "url": "https://levp.dev/",
+  "sameAs": [
+    "https://github.com/sungrow",
+    "https://linkedin.com/in/sungrow",
+    "https://mastodon.social/@sungrow"
+  ]
+}
+</script>
 
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -20,7 +46,9 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 .sr-only { position: absolute; width: 1px; height: 1px; clip: rect(0,0,0,0); overflow: hidden; }
 
 /* ═══════════════════════════════════════════════════════════
-   CRACKTRO — scene release homepage
+   CRACKTRO: scene release homepage
+   Type roles: Press Start 2P = logo and headings,
+   VT323 = menu, labels and meta, IBM Plex Mono = running text.
    ═══════════════════════════════════════════════════════════ */
 .d1 {
   --bg: #000010;
@@ -30,8 +58,13 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
   --c3: #ffd700;
   --c4: #00ff66;
   --c5: #ff5500;
-  --dim: #5a5a7a;
-  font-family: 'VT323', monospace;
+  --dim: #8a8aac;
+  --panel: rgba(0,0,40,0.42);
+  --rule: rgba(255,255,255,0.1);
+  --text: 'IBM Plex Mono', monospace;
+  --label: 'VT323', monospace;
+  --logo: 'Press Start 2P', monospace;
+  font-family: var(--label);
   background: var(--bg); color: var(--fg);
   min-height: 100vh;
   font-size: 20px; line-height: 1.3;
@@ -46,28 +79,45 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
       transparent 0 2px, rgba(255,255,255,0.025) 2px 3px);
   pointer-events: none; z-index: 50;
 }
-/* drifting starfield, three parallax depths */
-.d1::after {
-  content: ''; position: fixed; inset: 0;
-  background-image:
-    radial-gradient(1px 1px at 25% 15%, rgba(255,255,255,0.9) 50%, transparent 50%),
-    radial-gradient(1px 1px at 65% 60%, rgba(0,255,213,0.8) 50%, transparent 50%),
-    radial-gradient(1px 1px at 85% 30%, rgba(255,255,255,0.6) 50%, transparent 50%),
-    radial-gradient(2px 2px at 40% 80%, rgba(255,0,170,0.5) 50%, transparent 50%),
-    radial-gradient(1px 1px at 10% 55%, rgba(255,255,255,0.45) 50%, transparent 50%);
-  background-size: 220px 220px, 310px 310px, 270px 270px, 390px 390px, 170px 170px;
-  animation: d1-stars 90s linear infinite, d1-twinkle 7s ease-in-out infinite;
+/* drifting starfield, three parallax depths. Each layer is an oversized tile
+   sheet moved with transform, so the browser composites it instead of
+   repainting the whole viewport every frame. */
+.d1-sky {
+  position: fixed; inset: 0; overflow: hidden;
   pointer-events: none; z-index: 0;
   opacity: 0.7;
+  animation: d1-twinkle 7s ease-in-out infinite;
+}
+.d1-sky i { position: absolute; inset: -400px; will-change: transform; }
+.d1-sky i:nth-child(1) {
+  background-image:
+    radial-gradient(1px 1px at 25% 15%, rgba(255,255,255,0.9) 50%, transparent 50%),
+    radial-gradient(1px 1px at 72% 64%, rgba(255,255,255,0.45) 50%, transparent 50%);
+  background-size: 220px 220px;
+  animation: d1-drift1 80s linear infinite;
+}
+.d1-sky i:nth-child(2) {
+  background-image:
+    radial-gradient(1px 1px at 65% 60%, rgba(0,255,213,0.8) 50%, transparent 50%),
+    radial-gradient(1px 1px at 18% 30%, rgba(255,255,255,0.6) 50%, transparent 50%);
+  background-size: 310px 310px;
+  animation: d1-drift2 62s linear infinite;
+}
+.d1-sky i:nth-child(3) {
+  background-image:
+    radial-gradient(2px 2px at 40% 80%, rgba(255,0,170,0.5) 50%, transparent 50%);
+  background-size: 390px 390px;
+  animation: d1-drift3 48s linear infinite;
 }
 @keyframes d1-twinkle { 0%, 100% { opacity: 0.7; } 50% { opacity: 0.45; } }
-@keyframes d1-stars {
-  0%   { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
-  100% { background-position: -220px 440px, -620px 310px, 270px 540px, -390px 780px, 170px 340px; }
-}
+@keyframes d1-drift1 { to { transform: translate3d(-220px, 220px, 0); } }
+@keyframes d1-drift2 { to { transform: translate3d(-310px, 310px, 0); } }
+@keyframes d1-drift3 { to { transform: translate3d(390px, 390px, 0); } }
 .d1 a { color: inherit; text-decoration: none; }
+.d1 a:focus-visible { outline: 2px solid var(--c3); outline-offset: 3px; }
 
 .d1-copper {
+  position: relative; z-index: 1;
   height: 50px;
   /* horizontal banding over the gradient: copper bars are scanline-striped */
   background:
@@ -86,17 +136,21 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
   height: 12px; z-index: 49;
   animation-direction: reverse;
 }
+/* the bar is the logo's stage on the menu; on content pages it steps back */
+.d1:not([data-current="home"]) .d1-copper:not(.d1-copper--btm) { height: 18px; }
 
 .d1-wrap {
   max-width: 720px;
   margin: 0 auto;
-  padding: 60px 24px 0;
+  padding: 34px 24px 0;
   position: relative; z-index: 2;
 }
+.d1-wrap.wide { max-width: 940px; padding-top: 0; }
 
+/* ── home ─────────────────────────────────────────────── */
 .d1-ascii {
   color: var(--c2);
-  font-family: 'VT323', monospace;
+  font-family: var(--label);
   font-size: 13px; line-height: 1;
   white-space: pre; text-align: center;
   text-shadow: 0 0 6px rgba(255,0,170,0.5);
@@ -105,7 +159,7 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 }
 
 .d1-name {
-  font-family: 'Press Start 2P', monospace;
+  font-family: var(--logo);
   font-size: clamp(20px, 4.4vw, 42px);
   text-align: center;
   letter-spacing: 0.04em;
@@ -131,19 +185,57 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
   50% { transform: translateY(-5px); }
 }
 
-.d1-intro {
-  margin: 32px auto 0;
-  max-width: 540px;
+.d1-role {
+  margin-top: 16px;
   text-align: center;
-  font-family: 'IBM Plex Mono', monospace;
+  font-size: 27px;
+  line-height: 1.1;
+  letter-spacing: 0.1em;
+  color: var(--c1);
+  text-shadow: 0 0 10px rgba(0,255,213,0.35);
+}
+
+.d1-intro {
+  margin: 10px auto 0;
+  max-width: 560px;
+  text-align: center;
+  font-family: var(--text);
   font-size: 15px;
   line-height: 1.65;
   color: var(--fg);
 }
 
-.d1-menu { margin-top: 40px; }
+/* release-notes block: key, dot leader, value, the way a scene .nfo lists facts */
+.d1-nfo {
+  margin-top: 20px;
+  padding: 9px 16px;
+  border: 1px dashed rgba(0,255,213,0.3);
+  background: var(--panel);
+  font-size: 20px;
+  line-height: 1.3;
+}
+.d1-nfo > div {
+  display: grid;
+  grid-template-columns: 11ch 1fr;
+  column-gap: 1ch;
+  padding: 2px 0;
+}
+.d1-nfo dt {
+  color: var(--c3);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.d1-nfo dt::after {
+  content: ' ..............................';
+  color: var(--dim);
+  opacity: 0.7;
+}
+.d1-nfo dd { color: var(--fg); }
+.d1-nfo dd b { color: var(--c1); font-weight: normal; }
+
+.d1-menu { margin-top: 24px; }
 .d1-menu .head {
-  font-family: 'Press Start 2P', monospace;
+  font-family: var(--logo);
   color: var(--c2);
   font-size: 10px;
   letter-spacing: 0.16em;
@@ -158,7 +250,7 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
   display: flex;
   align-items: baseline;
   gap: 12px;
-  padding: 8px 12px;
+  padding: 5px 12px;
 }
 .d1-menu li:last-child { border-bottom: 0; }
 .d1-menu li { cursor: pointer; transition: background 0.12s; }
@@ -175,14 +267,14 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
   outline: 1px dashed rgba(0,255,213,0.35);
   outline-offset: -1px;
 }
-.d1-menu li a:focus { outline: none; }
+.d1-menu li a:focus, .d1-menu li a:focus-visible { outline: none; }
 .d1-menu li:hover .arrow::before, .d1-menu li.sel .arrow::before {
   animation: d1-blink 0.7s steps(1) infinite;
 }
 @keyframes d1-blink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; } }
 .d1-menu li .arrow {
   color: var(--c4);
-  font-family: 'Press Start 2P', monospace;
+  font-family: var(--logo);
   font-size: 10px;
   flex-shrink: 0;
   width: 30px;
@@ -199,9 +291,22 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 .d1-menu li.ext .arrow::before { content: '↗'; }
 .d1-menu li.int .arrow::before { content: '▸'; }
 
-/* greetz scroller — every cracktro owes one to the scene */
+.d1-keys {
+  margin-top: 12px;
+  padding-left: 12px;
+  font-size: 17px;
+  color: var(--dim);
+}
+.d1-keys kbd {
+  font-family: inherit;
+  color: var(--fg);
+  border: 1px solid rgba(255,255,255,0.22);
+  padding: 0 5px;
+}
+
+/* greetz scroller: every cracktro owes one to the scene */
 .d1-scroller {
-  margin-top: 46px;
+  margin-top: 34px;
   overflow: hidden;
   border-top: 1px dashed rgba(255,255,255,0.08);
   border-bottom: 1px dashed rgba(255,255,255,0.08);
@@ -210,7 +315,7 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 .d1-scroller .track {
   display: inline-flex;
   white-space: nowrap;
-  animation: d1-marq 26s linear infinite;
+  animation: d1-marq 30s linear infinite;
 }
 .d1-scroller .track span {
   font-size: 21px;
@@ -238,9 +343,12 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 
 /* chunky sequential boot-in, DOS style: no tween, just steps */
 [data-view="home"] .d1-ascii,
+[data-view="home"] .d1-role,
 [data-view="home"] .d1-intro,
+[data-view="home"] .d1-nfo,
 [data-view="home"] .d1-menu .head,
 [data-view="home"] .d1-menu li,
+[data-view="home"] .d1-keys,
 [data-view="home"] .d1-scroller,
 [data-view="home"] .d1-foot {
   animation: d1-boot 0.12s steps(1) both;
@@ -253,132 +361,249 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
     d1-sheen 5s ease-in-out 1.4s infinite,
     d1-bob 4.5s ease-in-out 1.4s infinite;
 }
-[data-view="home"] .d1-intro { animation-delay: 0.38s; }
-[data-view="home"] .d1-menu .head { animation-delay: 0.52s; }
-[data-view="home"] .d1-menu li:nth-child(1) { animation-delay: 0.60s; }
-[data-view="home"] .d1-menu li:nth-child(2) { animation-delay: 0.66s; }
-[data-view="home"] .d1-menu li:nth-child(3) { animation-delay: 0.72s; }
-[data-view="home"] .d1-menu li:nth-child(4) { animation-delay: 0.78s; }
-[data-view="home"] .d1-menu li:nth-child(5) { animation-delay: 0.84s; }
-[data-view="home"] .d1-menu li:nth-child(6) { animation-delay: 0.90s; }
-[data-view="home"] .d1-scroller { animation-delay: 0.98s; }
-[data-view="home"] .d1-foot { animation-delay: 1.08s; }
+[data-view="home"] .d1-role { animation-delay: 0.32s; }
+[data-view="home"] .d1-intro { animation-delay: 0.40s; }
+[data-view="home"] .d1-nfo { animation-delay: 0.50s; }
+[data-view="home"] .d1-menu .head { animation-delay: 0.60s; }
+[data-view="home"] .d1-menu li:nth-child(1) { animation-delay: 0.66s; }
+[data-view="home"] .d1-menu li:nth-child(2) { animation-delay: 0.71s; }
+[data-view="home"] .d1-menu li:nth-child(3) { animation-delay: 0.76s; }
+[data-view="home"] .d1-menu li:nth-child(4) { animation-delay: 0.81s; }
+[data-view="home"] .d1-menu li:nth-child(5) { animation-delay: 0.86s; }
+[data-view="home"] .d1-menu li:nth-child(6) { animation-delay: 0.91s; }
+[data-view="home"] .d1-menu li:nth-child(7) { animation-delay: 0.96s; }
+[data-view="home"] .d1-menu li:nth-child(8) { animation-delay: 1.01s; }
+[data-view="home"] .d1-keys { animation-delay: 1.08s; }
+[data-view="home"] .d1-scroller { animation-delay: 1.14s; }
+[data-view="home"] .d1-foot { animation-delay: 1.22s; }
 @keyframes d1-boot { 0% { opacity: 0; } 100% { opacity: 1; } }
 
 /* quick CRT flicker when a view comes on */
 .view.on { animation: d1-wipe 0.16s steps(3); }
 @keyframes d1-wipe { 0% { opacity: 0.2; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-/* commercial / personal views */
-.d1-back {
-  display: inline-block;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
-  color: var(--c1);
-  margin: 14px 0 24px;
-  border: 1px solid var(--c1);
-  padding: 7px 12px;
-  letter-spacing: 0.1em;
+/* ── content pages: shared chrome ─────────────────────── */
+.d1-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 20px;
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 22px 24px 26px;
+  position: relative; z-index: 2;
+  font-size: 22px;
 }
-.d1-back:hover { background: var(--c1); color: #000; }
+.d1[data-current="home"] .d1-top,
+.d1[data-current="home"] .d1-contact { display: none; }
+.d1-top a { color: var(--dim); padding: 2px 0; }
+.d1-top a:hover { color: var(--fg); }
+.d1-top a[aria-current="page"] {
+  color: var(--c1);
+  border-bottom: 2px solid var(--c1);
+}
+.d1-top .ext { margin-left: auto; color: var(--c3); }
+.d1-top .ext:hover { color: #fff8d0; }
+
+.d1-top .d1-back, .d1 .d1-btn {
+  display: inline-block;
+  font-family: var(--logo);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  color: var(--a, var(--c1));
+  border: 1px solid var(--a, var(--c1));
+  padding: 8px 12px;
+}
+.d1-top .d1-back:hover, .d1 .d1-btn:hover { background: var(--a, var(--c1)); color: #000010; }
+.d1-top .d1-back { margin-right: 8px; }
 
 .d1-h2 {
-  font-family: 'Press Start 2P', monospace;
+  font-family: var(--logo);
   color: var(--c3);
-  font-size: 24px;
+  font-size: clamp(18px, 3.4vw, 24px);
   letter-spacing: 0.04em;
-  text-shadow: 3px 3px 0 var(--c2);
-  margin-bottom: 20px;
+  text-shadow: 3px 3px 0 var(--a, var(--c2));
+}
+.d1-sub {
+  margin: 12px 0 30px;
+  max-width: 68ch;
+  font-family: var(--text);
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--fg);
+}
+.d1-h3 {
+  font-family: var(--logo);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--c2);
+  margin: 34px 0 20px;
 }
 
-.d1-projlist { display: grid; gap: 18px; }
-.d1-proj {
-  display: grid;
-  grid-template-columns: 1fr 280px;
-  gap: 18px;
-  border: 1px solid var(--c2);
-  background: rgba(0,0,40,0.4);
-  padding: 16px;
+/* ── cards ────────────────────────────────────────────── */
+.d1-list { display: grid; gap: 26px; }
+.d1-card {
+  --a: var(--c2);
   position: relative;
-  text-decoration: none;
-  color: inherit;
+  border: 1px solid var(--a);
+  background: var(--panel);
+  padding: 22px 18px 18px;
 }
-.d1-proj.flip { grid-template-columns: 280px 1fr; }
-.d1-proj { transition: background 0.15s, box-shadow 0.15s; }
-.d1-proj:hover {
-  background: rgba(255,0,170,0.06);
-  box-shadow: 0 0 20px rgba(255,0,170,0.18), inset 0 0 28px rgba(255,0,170,0.05);
-}
-.d1-proj::before {
+.d1-card::before {
   content: attr(data-tag);
   position: absolute; top: -10px; left: 14px;
-  background: var(--c2); color: #fff;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 9px; padding: 4px 10px;
+  background: var(--a); color: #000010;
+  font-family: var(--logo);
+  font-size: 9px; line-height: 1; padding: 5px 10px;
   letter-spacing: 0.1em;
 }
-.d1-proj h3 {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 16px; color: var(--c3);
-  margin: 6px 0 6px;
-  text-shadow: 2px 2px 0 var(--c2);
+.d1-card:not([data-tag])::before { display: none; }
+.d1-card.mini:not([data-tag]) { padding-top: 16px; }
+.d1-card h3 {
+  font-family: var(--logo);
+  font-size: 17px; line-height: 1.3;
+  color: var(--c3);
+  text-shadow: 2px 2px 0 var(--a);
 }
-.d1-proj .who {
-  font-size: 18px; color: var(--c1);
-  margin-bottom: 8px;
-  text-transform: uppercase; letter-spacing: 0.05em;
+.d1-card h3 small {
+  font-size: 9px; color: var(--a); text-shadow: none;
+  letter-spacing: 0.1em; margin-left: 6px; vertical-align: middle;
 }
-.d1-proj p { font-size: 19px; line-height: 1.3; }
-.d1-proj p .hl  { color: var(--c3); }
-.d1-proj p .hlm { color: var(--c2); }
-.d1-proj p .hlc { color: var(--c1); }
+.d1-card .who {
+  margin-top: 8px;
+  font-size: 19px; line-height: 1.2;
+  color: var(--c1);
+  letter-spacing: 0.05em;
+}
+.d1-card .who span { display: block; color: var(--dim); white-space: nowrap; }
+.d1-card p {
+  margin-top: 10px;
+  font-family: var(--text);
+  font-size: 14px; line-height: 1.62;
+}
+.d1-card .stats {
+  font-family: var(--label);
+  font-size: 21px; line-height: 1.3;
+  color: var(--dim);
+}
+.d1-card .stats b { color: var(--c3); font-weight: normal; }
+.d1-card .d1-cols + .stats { margin-top: 6px; }
+.d1-card .links { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; }
+
+.d1-card.media {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 22px;
+  align-items: start;
+}
+.d1-card.media.flip { grid-template-columns: 340px minmax(0, 1fr); }
+.d1-card.media.flip .d1-vid { order: -1; }
 
 .d1-vid {
+  position: relative;
+  display: block;
   aspect-ratio: 16/9;
   border: 2px solid var(--c1);
   background: #000;
-  box-shadow: 3px 3px 0 var(--c2);
+  box-shadow: 4px 4px 0 var(--a);
+  overflow: hidden;
 }
-.d1-vid iframe { width: 100%; height: 100%; border: 0; }
+.d1-vid iframe { width: 100%; height: 100%; border: 0; display: block; }
+/* the YouTube player is heavy, so the card shows a still and loads the player on click */
+.d1-vid img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.d1-vid .play {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; align-items: center; gap: 10px;
+  white-space: nowrap;
+  font-family: var(--logo); font-size: 10px; line-height: 1;
+  letter-spacing: 0.1em;
+  color: var(--a);
+  background: rgba(0,0,16,0.86);
+  border: 1px solid var(--a);
+  padding: 10px 13px;
+}
+.d1-vid .play::before {
+  content: '';
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent currentColor;
+}
+.d1-vid:hover .play, .d1-vid:focus-visible .play { background: var(--a); color: #000010; }
+.d1-vid.plate {
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--logo); font-size: 12px; line-height: 1.7;
+  letter-spacing: 0.1em; text-align: center; color: var(--c3);
+}
 
-.d1-mini-grid {
+.d1-cols {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 4px;
+  gap: 8px 30px;
+  margin-top: 16px;
 }
-.d1-mini {
-  border: 1px solid var(--c4);
-  padding: 12px;
-  background: rgba(0,0,40,0.4);
+.d1-cols h4 {
+  font-family: var(--label);
+  font-weight: normal;
+  font-size: 23px; line-height: 1.1;
+  letter-spacing: 0.06em;
+  color: var(--c1);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed var(--rule);
+}
+.d1-cols h4 span { color: var(--c3); }
+.d1-cols ul, .d1-points { list-style: none; }
+.d1-points { margin-top: 12px; }
+.d1-cols li, .d1-points li {
   position: relative;
-  text-decoration: none; color: inherit;
-  transition: background 0.15s, box-shadow 0.15s;
+  padding-left: 18px;
+  margin-bottom: 8px;
+  font-family: var(--text);
+  font-size: 13.5px; line-height: 1.58;
 }
-.d1-mini:hover {
-  background: rgba(0,255,102,0.05);
-  box-shadow: 0 0 16px rgba(0,255,102,0.14), inset 0 0 22px rgba(0,255,102,0.04);
+.d1-cols li::before, .d1-points li::before {
+  content: '▸';
+  position: absolute; left: 0; top: 0;
+  color: var(--c4);
 }
-.d1-mini::before {
-  content: attr(data-tag);
-  position: absolute; top: -10px; left: 12px;
-  background: var(--c4); color: #000;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 9px; padding: 3px 8px;
-  letter-spacing: 0.1em;
-}
-.d1-mini h4 {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 12px; color: var(--c1);
-  margin: 6px 0 4px;
-  text-shadow: 2px 2px 0 var(--c2);
-}
-.d1-mini .role { font-size: 16px; color: var(--c3); margin-bottom: 4px; }
-.d1-mini p { font-size: 16px; line-height: 1.3; }
+.d1-cols li b, .d1-points li b { color: var(--c3); font-weight: 500; }
 
+.d1-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 26px 18px; }
+.d1-card.mini { --a: var(--c4); padding: 20px 14px 14px; }
+.d1-card.mini h3 { font-size: 13px; }
+.d1-card.mini .who { font-size: 18px; color: var(--c1); margin-top: 6px; }
+.d1-card.mini p { font-size: 13px; line-height: 1.58; margin-top: 8px; }
+
+.d1-contact {
+  max-width: 940px;
+  margin: 44px auto 0;
+  padding: 0 24px;
+  position: relative; z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--dim);
+}
+.d1-contact .eof { color: var(--c2); flex-basis: 100%; text-align: center; margin-bottom: 8px; }
+.d1-contact a { color: var(--c1); }
+.d1-contact a:hover { color: #fff; text-decoration: underline; }
+.d1-contact i { font-style: normal; padding: 0 6px; opacity: 0.6; }
+
+@media (max-width: 820px) {
+  .d1-card.media, .d1-card.media.flip { grid-template-columns: 1fr; }
+  .d1-card.media.flip .d1-vid { order: 0; }
+  .d1-cols { grid-template-columns: 1fr; }
+  .d1-cols > div + div { margin-top: 10px; }
+  .d1-grid2 { grid-template-columns: 1fr; }
+}
 @media (max-width: 760px) {
-  .d1-proj, .d1-proj.flip { grid-template-columns: 1fr; }
-  .d1-mini-grid { grid-template-columns: 1fr; }
+  .d1-wrap { padding-top: 36px; }
+  .d1-role { font-size: 22px; letter-spacing: 0.06em; }
+  .d1-nfo { font-size: 18px; }
+  .d1-nfo > div { grid-template-columns: 8ch 1fr; }
   .d1-menu li { font-size: 19px; }
   .d1-menu li > a { gap: 8px; }
   .d1-menu li .href {
@@ -388,16 +613,22 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .d1-menu li .more { display: none; }
+  .d1-keys { display: none; }
+  .d1-top { font-size: 20px; gap: 6px 12px; padding-bottom: 20px; }
+  .d1-top .d1-back { flex-basis: 100%; margin: 0 0 6px; text-align: center; }
+  .d1-top .ext { margin-left: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .d1-copper, .d1::after, .d1-name,
+  .d1-copper, .d1-sky, .d1-sky i, .d1-name,
   .d1-menu li .arrow::before, .d1-foot::after,
   .d1-scroller .track,
   [data-view="home"] .d1-ascii, [data-view="home"] .d1-name,
-  [data-view="home"] .d1-intro, [data-view="home"] .d1-menu .head,
-  [data-view="home"] .d1-menu li, [data-view="home"] .d1-scroller,
-  [data-view="home"] .d1-foot,
+  [data-view="home"] .d1-role, [data-view="home"] .d1-intro,
+  [data-view="home"] .d1-nfo, [data-view="home"] .d1-menu .head,
+  [data-view="home"] .d1-menu li, [data-view="home"] .d1-keys,
+  [data-view="home"] .d1-scroller, [data-view="home"] .d1-foot,
   .view.on { animation: none; }
 }
 </style>
@@ -406,12 +637,22 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 
 <a rel="me" class="sr-only" href="https://mastodon.social/@sungrow">Mastodon</a>
 
-<section class="d1">
+<section class="d1" data-current="home">
+
+  <div class="d1-sky" aria-hidden="true"><i></i><i></i><i></i></div>
 
   <div class="d1-copper"></div>
 
+  <nav class="d1-top" aria-label="Sections">
+    <a class="d1-back" href="#" data-view-link="home">◀ MENU</a>
+    <a href="#commercial" data-view-link="commercial">commercial</a>
+    <a href="#personal" data-view-link="personal">personal</a>
+    <a href="#about" data-view-link="about">about</a>
+    <a class="ext" href="/Lev_Poliakov_CV.pdf" target="_blank" rel="noopener">resume.pdf ↗</a>
+  </nav>
+
   <!-- HOME -->
-  <div class="view on" data-view="home">
+  <div class="view on" data-view="home" data-title="Lev Poliakov · Senior Unreal Engine C++ Programmer">
     <div class="d1-wrap">
 
       <pre class="d1-ascii">
@@ -420,7 +661,15 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 
       <h1 class="d1-name">LEV POLIAKOV</h1>
 
-      <p class="d1-intro">Gameplay programmer. UE5 C++ — gameplay systems, game AI, cameras, in-game cinematics.</p>
+      <p class="d1-role">SENIOR UNREAL ENGINE C++ PROGRAMMER</p>
+
+      <p class="d1-intro">Gameplay systems, game AI, cameras and in-game cinematics, with the editor tools around them. 6+ years of C++ in Unreal, UE4 through UE 5.8.</p>
+
+      <dl class="d1-nfo">
+        <div><dt>now</dt><dd>two sports sims at <b>4People</b>: volleyball on UE 5.6, tennis on UE 5.8</dd></div>
+        <div><dt>shipped</dt><dd><b>The Crust</b> on Steam, four years as a core developer</dd></div>
+        <div><dt>base</dt><dd>Da Nang, Vietnam (UTC+7), remote, 08:00-16:00 CET</dd></div>
+      </dl>
 
       <nav class="d1-menu" aria-label="Site menu">
         <div class="head">.: MENU :.</div>
@@ -429,7 +678,7 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
             <a href="#commercial" data-view-link="commercial">
               <span class="arrow"></span>
               <span class="key">1</span>
-              <span class="name"><b>commercial projects</b> — seven titles</span>
+              <span class="name"><b>commercial projects</b><span class="more">, 2020 to now</span></span>
               <span class="href">/commercial</span>
             </a>
           </li>
@@ -441,34 +690,42 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
               <span class="href">/personal</span>
             </a>
           </li>
-          <li class="ext">
-            <a href="/Lev_Poliakov_CV.pdf" target="_blank">
+          <li class="int">
+            <a href="#about" data-view-link="about">
               <span class="arrow"></span>
               <span class="key">3</span>
-              <span class="name"><b>resume</b> — pdf, 2 pages</span>
+              <span class="name"><b>about</b><span class="more">, what I build and with what</span></span>
+              <span class="href">/about</span>
+            </a>
+          </li>
+          <li class="ext">
+            <a href="/Lev_Poliakov_CV.pdf" target="_blank" rel="noopener">
+              <span class="arrow"></span>
+              <span class="key">4</span>
+              <span class="name"><b>resume</b><span class="more">, pdf, 2 pages</span></span>
               <span class="href">/Lev_Poliakov_CV.pdf</span>
             </a>
           </li>
           <li class="ext">
-            <a href="https://github.com/sungrow" target="_blank">
+            <a href="https://github.com/sungrow" target="_blank" rel="noopener">
               <span class="arrow"></span>
-              <span class="key">4</span>
+              <span class="key">5</span>
               <span class="name"><b>github</b></span>
               <span class="href">@sungrow</span>
             </a>
           </li>
           <li class="ext">
-            <a href="https://linkedin.com/in/sungrow" target="_blank">
+            <a href="https://linkedin.com/in/sungrow" target="_blank" rel="noopener">
               <span class="arrow"></span>
-              <span class="key">5</span>
+              <span class="key">6</span>
               <span class="name"><b>linkedin</b></span>
               <span class="href">/in/sungrow</span>
             </a>
           </li>
           <li class="ext">
-            <a href="https://mastodon.social/@sungrow" target="_blank">
+            <a href="https://mastodon.social/@sungrow" target="_blank" rel="noopener">
               <span class="arrow"></span>
-              <span class="key">6</span>
+              <span class="key">7</span>
               <span class="name"><b>mastodon</b></span>
               <span class="href">@sungrow@mastodon</span>
             </a>
@@ -476,18 +733,19 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
           <li class="ext">
             <a href="mailto:progsag@gmail.com">
               <span class="arrow"></span>
-              <span class="key">7</span>
+              <span class="key">8</span>
               <span class="name"><b>email</b></span>
               <span class="href">progsag@gmail.com</span>
             </a>
           </li>
         </ul>
+        <p class="d1-keys" aria-hidden="true"><kbd>1</kbd>-<kbd>8</kbd> open &nbsp; <kbd>↑</kbd> <kbd>↓</kbd> move &nbsp; <kbd>enter</kbd> select &nbsp; <kbd>esc</kbd> back to this menu</p>
       </nav>
 
       <div class="d1-scroller" aria-hidden="true">
         <div class="track">
-          <span>★ greetz fly out to ★ VEOM STUDIO ★ CLAPPERHEADS ★ DECARTEL ★ 4PEOPLE ★ the demoscene ★ and you, still reading ★</span>
-          <span>★ greetz fly out to ★ VEOM STUDIO ★ CLAPPERHEADS ★ DECARTEL ★ 4PEOPLE ★ the demoscene ★ and you, still reading ★</span>
+          <span>★ greetz fly out to ★ VEOM STUDIO ★ DECARTEL ★ BALANCY ★ CLAPPERHEADS ★ 2040WORLD ★ 4PEOPLE ★ the demoscene ★ and you, still reading ★</span>
+          <span>★ greetz fly out to ★ VEOM STUDIO ★ DECARTEL ★ BALANCY ★ CLAPPERHEADS ★ 2040WORLD ★ 4PEOPLE ★ the demoscene ★ and you, still reading ★</span>
         </div>
       </div>
 
@@ -499,53 +757,88 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
   </div>
 
   <!-- COMMERCIAL -->
-  <div class="view" data-view="commercial">
-    <div class="d1-wrap">
-      <a class="d1-back" href="#" data-view-link="home">◀ BACK TO MENU</a>
-      <h2 class="d1-h2">/COMMERCIAL · 7 TITLES</h2>
+  <div class="view" data-view="commercial" data-title="Commercial projects · Lev Poliakov">
+    <div class="d1-wrap wide">
+      <h2 class="d1-h2">/COMMERCIAL</h2>
+      <p class="d1-sub">Current work first. All of it is C++, most of it in Unreal Engine.</p>
 
-      <div class="d1-projlist">
+      <div class="d1-list">
 
-        <a class="d1-proj" href="https://store.steampowered.com/app/1465470/The_Crust/" target="_blank" data-tag="◤ REL.001 ◢">
+        <article class="d1-card" data-tag="◤ NOW · NDA ◢">
+          <h3>SPORTS SIMS</h3>
+          <div class="who">4PEOPLE · SENIOR SOFTWARE ENGINEER <span>MAR '25 – NOW</span></div>
+          <p>Two sports simulation titles with broadcast-style presentation, on a team of 40+. Both are under NDA, so there is no footage here, only what I built.</p>
+          <div class="d1-cols">
+            <div>
+              <h4>TENNIS <span>· UE 5.8</span></h4>
+              <ul>
+                <li><b>In-game cinematics system</b>: three plugins plus game code, about 10,000 lines of C++ in the first delivery. Server commands start Level Sequences through StateTree tasks.</li>
+                <li><b>Custom Sequencer track</b> with its own track editor: keys on the timeline reach gameplay code as tagged events.</li>
+                <li><b>Rigid-body anim node</b> that detects the teleport at a camera cut, so hair physics keeps its pose instead of snapping.</li>
+                <li><b>Gameplay camera plugin</b> with handoff between cinematics and gameplay.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>VOLLEYBALL 6V6 <span>· UE 5.6</span></h4>
+              <ul>
+                <li><b>Camera operator plugin</b>: rule-based behavior, ball tracking without gimbal lock. The rest of the camera system runs on it.</li>
+                <li><b>Rally replay</b>: full rallies recorded and played back deterministically, with the RNG state captured.</li>
+                <li><b>Court-side AI</b> on StateTree in C++: coaches, line referees, extras, avoidance based on the player's predicted path.</li>
+                <li><b>Server-driven match flow</b>: serve, end-of-rally reactions, side changes, timeouts. Match commentary with phrase conditions on rally events (shared ownership).</li>
+              </ul>
+            </div>
+          </div>
+          <p class="stats">On the volleyball title: about <b>550</b> commits in <b>20</b> months, top <b>five</b> of 40+ contributors by commit count.</p>
+        </article>
+
+        <article class="d1-card media" data-tag="◤ SHIPPED · STEAM ◢" style="--a: var(--c1);">
           <div>
             <h3>THE CRUST</h3>
-            <div class="who">VEOM STUDIO · SENIOR SOFTWARE ENGINEER · JAN '20 — MAR '24</div>
-            <p>4 years as a core developer on a Factorio-scale lunar base-builder. Multithreaded conveyor pipeline, custom Vulkan path, save format that survives 2.5M nodes.</p>
-            <p><span class="hl">15×</span> fps · <span class="hl">2ms</span>/50k res · <span class="hl">−90%</span> load · <span class="hlm">2×</span> Vulkan</p>
+            <div class="who">VEOM STUDIO · SENIOR SOFTWARE ENGINEER <span>JAN '20 – MAR '24</span></div>
+            <p>Survival-factory game on the Moon, released on Steam. Four years as one of the core developers.</p>
+            <ul class="d1-points">
+              <li><b>Frame rate from 4 FPS to 60+</b> (frame time from 250 ms to 16.6 ms) with multithreading and custom HLSL shaders.</li>
+              <li><b>Conveyor system</b> that processes 50,000+ resources in under 2 ms, multithreaded.</li>
+              <li><b>Save system</b>: save and load times cut by 90%.</li>
+              <li><b>Custom rendering pipeline</b> for resource visualization: it doubled the frame rate on the Vulkan renderer.</li>
+              <li><b>In-game market</b> with dynamic prices driven by player actions.</li>
+            </ul>
+            <div class="links"><a class="d1-btn" href="https://store.steampowered.com/app/1465470/The_Crust/" target="_blank" rel="noopener">STEAM PAGE</a></div>
           </div>
-          <div class="d1-vid"><iframe src="https://www.youtube-nocookie.com/embed/-7-pgPDQ89s?rel=0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="The Crust"></iframe></div>
-        </a>
+          <a class="d1-vid" href="https://www.youtube.com/watch?v=-7-pgPDQ89s" target="_blank" rel="noopener" data-yt="-7-pgPDQ89s" data-title="The Crust trailer"><img src="https://i.ytimg.com/vi/-7-pgPDQ89s/hqdefault.jpg" alt="" width="480" height="360" loading="lazy" decoding="async"><span class="play">PLAY TRAILER</span></a>
+        </article>
 
-        <a class="d1-proj flip" href="https://store.steampowered.com/app/2458560/Zoochosis/" target="_blank" data-tag="◤ REL.002 ◢" style="border-color: var(--c1);">
-          <div class="d1-vid" style="border-color: var(--c2); box-shadow: 3px 3px 0 var(--c3);"><iframe src="https://www.youtube-nocookie.com/embed/RejEUXIGPQ0?rel=0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="Zoochosis"></iframe></div>
+        <article class="d1-card media flip" data-tag="◤ CONTRACT · 2025 ◢" style="--a: var(--c5);">
           <div>
-            <h3 style="color: var(--c1); text-shadow: 2px 2px 0 var(--c1);">ZOOCHOSIS</h3>
-            <div class="who" style="color: var(--c3);">CLAPPERHEADS · CONTRACT · JAN '25 — FEB '25</div>
-            <p>Bodycam horror sim. <span class="hl">Inventory overhaul</span> · <span class="hlm">AI rework</span> · <span class="hl">critical-bug triage</span>.</p>
+            <h3>ZOOCHOSIS</h3>
+            <div class="who">CLAPPERHEADS · CONTRACT <span>JAN '25 – FEB '25</span></div>
+            <p>Bodycam horror sim on UE5. A two-month contract ahead of a content update: reworked the inventory system and the behavior of animals and monsters, fixed critical gameplay issues.</p>
+            <div class="links"><a class="d1-btn" href="https://store.steampowered.com/app/2458560/Zoochosis/" target="_blank" rel="noopener">STEAM PAGE</a></div>
           </div>
-        </a>
+          <a class="d1-vid" href="https://www.youtube.com/watch?v=RejEUXIGPQ0" target="_blank" rel="noopener" data-yt="RejEUXIGPQ0" data-title="Zoochosis trailer"><img src="https://i.ytimg.com/vi/RejEUXIGPQ0/hqdefault.jpg" alt="" width="480" height="360" loading="lazy" decoding="async"><span class="play">PLAY TRAILER</span></a>
+        </article>
 
-        <div class="d1-mini-grid">
-          <div class="d1-mini" data-tag="◤ REL.003 ◢">
-            <h4>MALICE</h4>
-            <div class="role">DECARTEL · JUL '23 — MAR '24</div>
-            <p>Cyberpunk action RPG. Reworked combat &amp; camera for tighter Max-Payne gun-fu — improved engagement metrics.</p>
-          </div>
-          <div class="d1-mini" data-tag="◤ REL.004 ◢">
-            <h4>METAVERSE</h4>
-            <div class="role">DECARTEL · MMO RPG</div>
-            <p>UE5 GAS multiplayer for hundreds concurrent. −40% bandwidth, fixed the desyncs breaking the economy.</p>
-          </div>
-          <div class="d1-mini" data-tag="◤ REL.005 ◢" style="border-color: var(--c5);">
-            <h4 style="color: var(--c5);">2040WORLD</h4>
-            <div class="role">OCT '24 — FEB '25</div>
-            <p>Stabilized a struggling codebase — −70% bug count. QT6 UI overhaul. Re-architected backend/launcher/game.</p>
-          </div>
-          <div class="d1-mini" data-tag="◤ REL.006 · NDA ◢" style="border-color: var(--c2);">
-            <h4 style="color: var(--c2);">SPORTS SIMS <span style="color: var(--c3); font-size: 9px;">[NDA]</span></h4>
-            <div class="role">4PEOPLE · MAR '25 — PRES</div>
-            <p>Two titles: volleyball on UE 5.6, tennis on UE 5.8. Camera operator plugin, rally replay, court-side AI on StateTree, in-game cinematics on Sequencer.</p>
-          </div>
+        <div class="d1-grid2">
+          <article class="d1-card mini" data-tag="◤ CONTRACT · 2024 ◢">
+            <h3>2040WORLD</h3>
+            <div class="who">C++ · QT6 <span>OCT '24 – JAN '25</span></div>
+            <p>Contract on a C++ and Qt6 codebase. Cleaned up and optimized system components, which brought the active bug count down by about 70%. Reworked the UI library against updated design mockups.</p>
+          </article>
+          <article class="d1-card mini" data-tag="◤ 2024 ◢">
+            <h3>BALANCY</h3>
+            <div class="who">C++20 · TYPESCRIPT <span>MAR '24 – OCT '24</span></div>
+            <p>Balancy Plugin: statistics, dynamic monetization and LiveOps for games. Cross-platform plugin in C++20, with execution time and memory use roughly halved. Code generator in TypeScript that writes the wrappers for each supported language and platform.</p>
+          </article>
+          <article class="d1-card mini" data-tag="◤ 2023 – 24 ◢">
+            <h3>MALICE</h3>
+            <div class="who">DECARTEL · UE5 <span>JUL '23 – MAR '24</span></div>
+            <p>Action game with Arkham-style melee combat. Built the targeting system for melee combat and the camera system for combat and navigation.</p>
+          </article>
+          <article class="d1-card mini" data-tag="◤ 2023 – 24 ◢">
+            <h3>METAVERSE</h3>
+            <div class="who">DECARTEL · UE5 · GAS <span>JUL '23 – MAR '24</span></div>
+            <p>MMO RPG. Gameplay mechanics on the Gameplay Ability System, stable in multiplayer. Client-server game modules, and networking code optimized for responsiveness.</p>
+          </article>
         </div>
 
       </div>
@@ -553,49 +846,143 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
   </div>
 
   <!-- PERSONAL -->
-  <div class="view" data-view="personal">
-    <div class="d1-wrap">
-      <a class="d1-back" href="#" data-view-link="home">◀ BACK TO MENU</a>
-      <h2 class="d1-h2" style="color: var(--c4); text-shadow: 3px 3px 0 var(--c1);">/PERSONAL</h2>
+  <div class="view" data-view="personal" data-title="Personal projects · Lev Poliakov">
+    <div class="d1-wrap wide">
+      <h2 class="d1-h2" style="--a: var(--c1);">/PERSONAL</h2>
+      <p class="d1-sub">What I make outside of work: a jam game, a small web tool, a renderer.</p>
 
-      <div class="d1-projlist">
+      <div class="d1-list">
 
-        <a class="d1-proj" href="https://sungrow.itch.io/lutins" target="_blank" data-tag="◤ GAME JAM ◢" style="border-color: var(--c4);">
+        <article class="d1-card media" data-tag="◤ GAME JAM · 2026 ◢" style="--a: var(--c4);">
           <div>
-            <h3 style="color: var(--c4); text-shadow: 2px 2px 0 var(--c1);">LUTINS</h3>
-            <div class="who" style="color: var(--c3);">2026 EPIC AI MEGAJAM · SOLO · UE 5.9</div>
-            <p>Built solo in two days. A small cactus spent the family savings on bubble tea and now delivers potions: up a vampire's castle, under a troll's bridge, down a chalk cliff on a slide.</p>
-            <p><span class="hl">2 days</span> · <span class="hl">solo</span> · plays in the <span class="hlm">browser</span> and on Windows</p>
+            <h3>LUTINS</h3>
+            <div class="who">2026 EPIC AI MEGAJAM · SOLO · UE 5.9</div>
+            <p>Built solo in two days for the jam. A small cactus spent the family savings on bubble tea and now delivers potions: up a vampire's castle, under a troll's bridge, down a chalk cliff on a slide. Plays in the browser and on Windows.</p>
+            <div class="links"><a class="d1-btn" href="https://sungrow.itch.io/lutins" target="_blank" rel="noopener">PLAY ON ITCH.IO</a></div>
           </div>
-          <div class="d1-vid" style="border-color: var(--c4); box-shadow: 3px 3px 0 var(--c1);"><iframe src="https://www.youtube-nocookie.com/embed/QJM4LMk0tac?rel=0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="Lutins"></iframe></div>
-        </a>
+          <a class="d1-vid" href="https://www.youtube.com/watch?v=QJM4LMk0tac" target="_blank" rel="noopener" data-yt="QJM4LMk0tac" data-title="Lutins gameplay trailer"><img src="https://i.ytimg.com/vi/QJM4LMk0tac/hqdefault.jpg" alt="" width="480" height="360" loading="lazy" decoding="async"><span class="play">PLAY TRAILER</span></a>
+        </article>
 
-        <a class="d1-proj flip" href="/randomaddress" data-tag="◤ PERSONAL ◢" style="border-color: var(--c3);">
-          <div class="d1-vid" style="border-color: var(--c3); box-shadow: 3px 3px 0 var(--c2); display: flex; align-items: center; justify-content: center;">
-            <span style="font-family: 'Press Start 2P', monospace; font-size: 12px; color: var(--c3); letter-spacing: 0.1em; text-align: center; line-height: 1.6;">⌂ 742<br>EVERGREEN<br>TERRACE</span>
-          </div>
+        <article class="d1-card media flip" data-tag="◤ WEB TOOL ◢" style="--a: var(--c1);">
           <div>
-            <h3 style="color: var(--c3); text-shadow: 2px 2px 0 var(--c2);">RANDOMADDRESS</h3>
-            <div class="who" style="color: var(--c1);">WEB TOOL</div>
-            <p>Random postal address generator — fake but plausible addresses for testing forms, QA and dev data. Routed under <span class="hl">/randomaddress</span>.</p>
+            <h3>RANDOMADDRESS</h3>
+            <div class="who">RUNS ON THIS SITE</div>
+            <p>Random postal address generator: plausible fake addresses for testing forms, QA and dev data.</p>
+            <div class="links"><a class="d1-btn" href="/randomaddress">OPEN THE TOOL</a></div>
           </div>
-        </a>
+          <div class="d1-vid plate" aria-hidden="true"><span>742<br>EVERGREEN<br>TERRACE</span></div>
+        </article>
+
+        <article class="d1-card mini" data-tag="◤ 2021 ◢" style="--a: var(--c5);">
+          <h3>VULKAN RENDERER</h3>
+          <div class="who">C11 · VULKAN 1.2</div>
+          <p>Rendering engine written as a side project. Batch rendering with a master material and merged meshes to cut draw calls.</p>
+        </article>
 
       </div>
     </div>
   </div>
+
+  <!-- ABOUT -->
+  <div class="view" data-view="about" data-title="About · Lev Poliakov">
+    <div class="d1-wrap wide">
+      <h2 class="d1-h2" style="--a: var(--c5);">/ABOUT</h2>
+      <p class="d1-sub">Gameplay programmer. 6+ years of C++ in Unreal Engine, UE4 through UE 5.8. One title shipped on Steam, two sports sims in development now. I own systems end to end, from the design document to the editor tools around them, on a team of 40+.</p>
+
+      <div class="d1-grid2">
+        <article class="d1-card mini" style="--a: var(--c2);">
+          <h3>GAMEPLAY SYSTEMS</h3>
+          <p>GAS mechanics that hold up in multiplayer, server-driven match flow, replay and serialization, inventory, an in-game market with dynamic prices.</p>
+        </article>
+        <article class="d1-card mini" style="--a: var(--c4);">
+          <h3>GAME AI</h3>
+          <p>Character behavior on StateTree in C++, avoidance based on the player's predicted path, animation blending and retargeting for AI characters.</p>
+        </article>
+        <article class="d1-card mini" style="--a: var(--c1);">
+          <h3>CAMERAS AND CINEMATICS</h3>
+          <p>Rule-based camera plugins, Sequencer with custom tracks and track editors, handoff between cinematics and gameplay.</p>
+        </article>
+        <article class="d1-card mini" style="--a: var(--c5);">
+          <h3>TOOLS AND PERFORMANCE</h3>
+          <p>Editor modules, asset validators, automation tests. Profiling, multithreading, custom HLSL shaders, a custom rendering pipeline.</p>
+        </article>
+      </div>
+
+      <h3 class="d1-h3">.: STACK :.</h3>
+      <dl class="d1-nfo" style="margin-top: 0;">
+        <div><dt>code</dt><dd>C++14/17/20, C, TypeScript, Python, Go, Bash, Blueprints</dd></div>
+        <div><dt>unreal</dt><dd>UE4 and UE5 up to 5.8: Gameplay Ability System, StateTree, Behavior Trees, Sequencer, UMG, Motion Matching, MotionWarping, Animation Blueprints, ControlRig, MetaHuman, Niagara</dd></div>
+        <div><dt>graphics</dt><dd>Vulkan, DirectX, OpenGL, HLSL, RenderDoc</dd></div>
+        <div><dt>tools</dt><dd>Git, CMake, JetBrains Rider, Visual Studio, Jira, Qt6, Emscripten, AWS</dd></div>
+        <div><dt>practice</dt><dd>technical design documents, code review, CI build scripts, Unreal Automation tests</dd></div>
+      </dl>
+
+      <h3 class="d1-h3">.: WHERE AND WHEN :.</h3>
+      <dl class="d1-nfo" style="margin-top: 0;">
+        <div><dt>base</dt><dd>Da Nang, Vietnam (UTC+7)</dd></div>
+        <div><dt>hours</dt><dd>08:00-16:00 CET, remote since 2020</dd></div>
+        <div><dt>speaks</dt><dd>English C1, Russian native</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <footer class="d1-contact">
+    <span class="eof">─── eof ───</span>
+    <a href="mailto:progsag@gmail.com">progsag@gmail.com</a><i>·</i><a href="https://linkedin.com/in/sungrow" target="_blank" rel="noopener">linkedin</a><i>·</i><a href="https://github.com/sungrow" target="_blank" rel="noopener">github</a><i>·</i><a href="/Lev_Poliakov_CV.pdf" target="_blank" rel="noopener">resume.pdf</a>
+  </footer>
 
   <div class="d1-copper d1-copper--btm" aria-hidden="true"></div>
 
 </section>
 
 <script>
+  const root = document.querySelector('.d1');
   const views = [...document.querySelectorAll('.view')];
+  const topLinks = [...document.querySelectorAll('.d1-top [data-view-link]')];
   let sel = -1;
+
+  // video cards: a still image until clicked, then the real player
+  const players = new Map();
+
+  function stopVideos() {
+    players.forEach((link, box) => box.replaceWith(link));
+    players.clear();
+  }
+
+  document.querySelectorAll('a.d1-vid[data-yt]').forEach(link => {
+    link.addEventListener('click', e => {
+      // ctrl/cmd/shift/middle click keeps the normal "open on YouTube" behavior
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      const box = document.createElement('div');
+      box.className = 'd1-vid';
+      const frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + link.dataset.yt + '?autoplay=1&rel=0';
+      frame.title = link.dataset.title;
+      frame.allow = 'autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      frame.allowFullscreen = true;
+      box.appendChild(frame);
+      players.set(box, link);
+      link.replaceWith(box);
+    });
+  });
+
+  // thumbnails sit in hidden views, so fetch them once the menu is idle:
+  // opening a section then shows them from cache
+  const warm = () => document.querySelectorAll('a.d1-vid[data-yt] img').forEach(img => { new Image().src = img.src; });
+  if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 3000 });
+  else setTimeout(warm, 1500);
 
   function showView(target, pushHash = true) {
     if (!views.some(v => v.dataset.view === target)) target = 'home';
+    stopVideos();
     views.forEach(v => v.classList.toggle('on', v.dataset.view === target));
+    root.dataset.current = target;
+    topLinks.forEach(a => {
+      if (a.dataset.viewLink === target) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+    document.title = views.find(v => v.dataset.view === target).dataset.title;
     sel = -1;
     document.querySelectorAll('.d1-menu li.sel').forEach(li => li.classList.remove('sel'));
     if (pushHash) {
@@ -612,11 +999,11 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
     });
   });
 
-  // browser back/forward and direct #commercial / #personal links
+  // browser back/forward and direct #commercial / #personal / #about links
   window.addEventListener('popstate', () => showView(location.hash.slice(1) || 'home', false));
   if (location.hash) showView(location.hash.slice(1), false);
 
-  // ── keyboard: the menu advertises digit keys 1–7, so they actually work ──
+  // ── keyboard: the menu advertises digit keys, so they actually work ──
   const menuItems = [...document.querySelectorAll('.d1-menu li')];
 
   function setSel(i) {
@@ -632,15 +1019,15 @@ body { background: #000010; color: #fff; overflow-x: hidden; }
 
   document.addEventListener('keydown', e => {
     if (e.ctrlKey || e.altKey || e.metaKey) return;
-    const home = document.querySelector('[data-view="home"]').classList.contains('on');
+    const home = root.dataset.current === 'home';
 
     if (e.key === 'Escape' && !home) { showView('home'); return; }
     if (!home) return;
 
-    const fn = /^([1-7])$/.exec(e.key);
-    if (fn) {
+    const n = /^[1-9]$/.test(e.key) ? +e.key : 0;
+    if (n && n <= menuItems.length) {
       e.preventDefault();
-      activate(menuItems[+fn[1] - 1]);
+      activate(menuItems[n - 1]);
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       setSel(sel + 1);
